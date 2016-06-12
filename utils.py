@@ -1,5 +1,51 @@
-from os import makedirs, symlink
+from collections import namedtuple
+from os import makedirs, symlink, walk
+from os.path import relpath, join, exists
 import sys
+import re
+
+
+Link = namedtuple('Link', ['src', 'dest'])
+
+
+def find_absences(src, dest, ignored_patterns="a^"):
+    """ Walk the source directory and return a lists of diles and dirs absent
+        from the destination directory
+
+    Args:
+        source: The path to copy from (Default is the script's location)
+        destination The path to copy to (Defaults to home directory)
+
+    Returns:
+        absent_files: a list of Links
+        absent_dirs: a list of paths to directories
+    """
+    absent_dirs = []
+    absent_files = []
+    for root, dirs, files in walk(src, topdown=True):
+        rel_path = relpath(root, src)
+        if rel_path == ".":
+            rel_path = ""
+
+        # Remove ignored directories from the walk
+        dirs[:] = [dir_name for dir_name in dirs
+                   if not re.match(ignored_patterns, dir_name)]
+        files[:] = [f for f in files
+                    if not re.match(ignored_patterns, f)]
+
+        # Create list of dirs that dont exist
+        for dir_name in dirs:
+            if not exists(join(dest, rel_path, dir_name)):
+                absent_dirs.append(join(dest, rel_path, dir_name))
+
+        # Create a list of files to be symlinked
+        for f in files:
+            if not exists(join(dest, rel_path, f)):
+                # Add the source and destination for the symlink
+                absent_files.append(Link(join(root, f),
+                                    join(dest, rel_path, f)))
+
+        return absent_files, absent_dirs
 
 
 def query_yes_no(question, default="yes"):

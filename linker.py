@@ -1,23 +1,19 @@
 #! /usr/bin/env python
-from collections import namedtuple
-from os.path import exists, join, relpath, expanduser, split
-from os import walk, symlink, makedirs
+from os.path import exists, join, expanduser, split
 from filecmp import dircmp
 from shutil import move
 import os
 import sys
-import re
 
 from utils import (create_dirs, create_links, get_lines_from_file,
-                   parse_regex_file, query_yes_no, sync_dir)
+                   parse_regex_file, query_yes_no, sync_dir, Link,
+                   find_absences)
 
 INSTALL_PLATFORM = sys.platform
 CONFIG_DIR = split(os.path.abspath(__file__))[0] + "/.."
 HOME_DIR = expanduser("~")
 MISSING_FILE_MESSAGE = "Please create a {} file in the same" \
                        " directory as the linker python file."
-
-Link = namedtuple('Link', ['src', 'dest'])
 
 
 class Linker(object):
@@ -39,14 +35,14 @@ class Linker(object):
 
         if folder_links_file is None:
             try:
-                self.folder_links_file = join(CONFIG_DIR, ".folderlinks")
+                self.folder_links_file = join(self.src, ".folderlinks")
                 exists(self.folder_links_file)
             except IOError:
                 print(MISSING_FILE_MESSAGE.format(".folderlinks"))
                 sys.exit(1)
         if ignore_file is None:
             try:
-                self.ignore_file = join(CONFIG_DIR, ".linkerignore")
+                self.ignore_file = join(self.src, ".linkerignore")
                 exists(self.ignore_file)
             except IOError:
                 print(MISSING_FILE_MESSAGE.format(".linkerignore"))
@@ -61,7 +57,8 @@ class Linker(object):
         Parses the ignore file for regexes and then generates a list of files
         which need to be simulinked"""
 
-        absent_files, absent_dirs = self.find_absences()
+        absent_files, absent_dirs = find_absences(self.src, self.dest,
+                                                  self.ignored_patterns)
 
         if len(absent_files) == 0:
             print("No files to move")
@@ -72,45 +69,6 @@ class Linker(object):
         if query_yes_no("Are these the correct files?"):
             create_dirs(dirs=absent_dirs)
             create_links(links=absent_files)
-
-    def find_absences(self):
-        """ Walk the source directory and return a lists of diles and dirs absent
-            from the destination directory
-
-        Args:
-            source: The path to copy from (Default is the script's location)
-            destination The path to copy to (Defaults to home directory)
-
-        Returns:
-            absent_files: a list of Links
-            absent_dirs: a list of paths to directories
-        """
-        absent_dirs = []
-        absent_files = []
-        for root, dirs, files in walk(self.src, topdown=True):
-            rel_path = relpath(root, self.src)
-            if rel_path == ".":
-                rel_path = ""
-
-            # Remove ignored directories from the walk
-            dirs[:] = [dir_name for dir_name in dirs
-                       if not re.match(self.ignored_patterns, dir_name)]
-            files[:] = [f for f in files
-                        if not re.match(self.ignored_patterns, f)]
-
-            # Create list of dirs that dont exist
-            for dir_name in dirs:
-                if not exists(join(self.dest, rel_path, dir_name)):
-                    absent_dirs.append(join(self.dest, rel_path, dir_name))
-
-            # Create a list of files to be symlinked
-            for f in files:
-                if not exists(join(self.dest, rel_path, f)):
-                    # Add the source and destination for the symlink
-                    absent_files.append(Link(join(root, f),
-                                        join(self.dest, rel_path, f)))
-
-        return absent_files, absent_dirs
 
     def link_folders(self):
         """Link all the files in the folder link file
