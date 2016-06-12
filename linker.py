@@ -86,12 +86,12 @@ class Linker(object):
 
             if exists(dest_folder_path) and exists(src_folder_path):
                 # Syncronize dirs
+                absent_files, absent_dirs = find_absences(dest_folder_path,
+                                                          src_folder_path)
                 print(dest_folder_path)
                 print(src_folder_path)
                 dcmp = dircmp(dest_folder_path, src_folder_path)
-                print dcmp.left_only
                 # print dcmp.report_full_closure()
-                print dcmp.subdirs
             elif exists(dest_folder_path) and not exists(src_folder_path):
                 print("Moving and symlinking {}" % folder)
                 # move(dest_folder_path, src_folder_path)

@@ -9,7 +9,7 @@ Link = namedtuple('Link', ['src', 'dest'])
 
 
 def find_absences(src, dest, ignored_patterns="a^"):
-    """ Walk the source directory and return a lists of diles and dirs absent
+    """ Walk the source directory and return a lists of files and dirs absent
         from the destination directory
 
     Args:
@@ -110,7 +110,7 @@ def parse_regex_file(file_path):
     """
     lines = get_lines_from_file(file_path)
     if lines == []:
-        return ""
+        return "a^"
     else:
         return "(" + ")|(".join(lines) + ")"  # regex from list of regexes
 
