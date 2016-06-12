@@ -1,11 +1,12 @@
 from collections import namedtuple
 from os import makedirs, symlink, walk
 from os.path import relpath, join, exists
+from shutil import move
 import sys
 import re
 
 
-Link = namedtuple('Link', ['src', 'dest'])
+Transaction = namedtuple('Transaction', ['src', 'dest'])
 
 
 def find_absences(src, dest, ignored_patterns="a^"):
@@ -17,7 +18,7 @@ def find_absences(src, dest, ignored_patterns="a^"):
         destination The path to copy to (Defaults to home directory)
 
     Returns:
-        absent_files: a list of Links
+        absent_files: a list of Transactions
         absent_dirs: a list of paths to directories
     """
     absent_dirs = []
@@ -42,10 +43,10 @@ def find_absences(src, dest, ignored_patterns="a^"):
         for f in files:
             if not exists(join(dest, rel_path, f)):
                 # Add the source and destination for the symlink
-                absent_files.append(Link(join(root, f),
+                absent_files.append(Transaction(join(root, f),
                                     join(dest, rel_path, f)))
 
-        return absent_files, absent_dirs
+    return absent_files, absent_dirs
 
 
 def query_yes_no(question, default="yes"):
@@ -115,7 +116,7 @@ def parse_regex_file(file_path):
         return "(" + ")|(".join(lines) + ")"  # regex from list of regexes
 
 
-def create_dirs(dirs=[]):
+def create_dirs(dirs=None):
     """Creates all folders in dirs
 
     Args:
@@ -124,22 +125,35 @@ def create_dirs(dirs=[]):
     Returns:
         None: Does not return anything
     """
-    for dir_name in dirs:
-        makedirs(dir_name)
+    if dirs:
+        for dir_name in dirs:
+            makedirs(dir_name)
 
 
-def create_links(links=[]):
+def create_links(links=None):
     """Create symlinks for each item in links
 
     Args:
-        links([Link]): a list of Links
+        links([Transaction]): a list of paths to link
     Returns:
         None: Does not return anything
     """
-    for link in links:
-        symlink(link.src, link.dest)
+    if links:
+        for link in links:
+            symlink(link.src, link.dest)
 
 
-def sync_dir(dir):
-    """Recursively syncronizes two directories"""
-    pass
+def move_files(transactions=None):
+    """Move the files in the list from src to dest
+
+    Args:
+        transactions([Transaction])
+
+    Returns:
+        None: Does not return anything
+    """
+    if transactions:
+        for transaction in transactions:
+            move(transaction.src, transaction.dest)
+
+
