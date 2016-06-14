@@ -99,7 +99,7 @@ class Linker(object):
                 symlink(src_folder_path, dest_folder_path)
 
             elif exists(dest_folder_path) and not exists(src_folder_path):
-                print("Moving and symlinking {}" % folder)
+                print("Moving and symlinking {}".format(folder))
                 print make_archive("{}_backup".format(folder).strip("."),
                                    "zip", root_dir=dest_folder_path)
                 move(dest_folder_path, src_folder_path)
@@ -107,9 +107,7 @@ class Linker(object):
                 symlink(src_folder_path, dest_folder_path)
 
             elif not exists(dest_folder_path) and exists(src_folder_path):
-                print("Symlinking {}" % folder)
-                print make_archive("{}_backup".format(folder).strip("."),
-                                   "zip", root_dir=dest_folder_path)
+                print("Symlinking {}".format(folder))
                 symlink(src_folder_path, dest_folder_path)
 
 
