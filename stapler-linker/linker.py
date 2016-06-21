@@ -1,17 +1,18 @@
 #! /usr/bin/env python
-from os.path import exists, join, expanduser, split, islink
-from os import symlink, rmdir, remove
-from filecmp import dircmp
-from shutil import move, make_archive, rmtree
+from os.path import exists, join, expanduser, split
 import os
 import sys
+import logging
 
-from utils import (create_dirs, create_links, move_files, get_lines_from_file,
-                   parse_regex_file, query_yes_no, find_absences)
+from utils import (create_dirs, create_links, get_lines_from_file,
+                   parse_regex_file, query_yes_no, find_absences, link_folder)
+
+logger = logging.getLogger(__name__)
 
 INSTALL_PLATFORM = sys.platform
-CONFIG_DIR = join(split(os.path.abspath(__file__))[0], "..")
+CONFIG_DIR = join(split(os.path.abspath(__file__))[0], "..", "..")
 HOME_DIR = expanduser("~")
+
 MISSING_FILE_MESSAGE = "Please create a {} file in the same" \
                        " directory as the linker python file."
 
@@ -37,15 +38,15 @@ class Linker(object):
             try:
                 self.folder_links_file = join(self.src, ".folderlinks")
                 exists(self.folder_links_file)
-            except IOError:
-                print(MISSING_FILE_MESSAGE.format(".folderlinks"))
+            except OSError:
+                logger.error(MISSING_FILE_MESSAGE.format(".folderlinks"))
                 sys.exit(1)
         if ignore_file is None:
             try:
                 self.ignore_file = join(self.src, ".linkerignore")
                 exists(self.ignore_file)
-            except IOError:
-                print(MISSING_FILE_MESSAGE.format(".linkerignore"))
+            except OSError:
+                logger.error(MISSING_FILE_MESSAGE.format(".linkerignore"))
                 sys.exit(1)
 
         self.folder_patterns = get_lines_from_file(self.folder_links_file)
@@ -83,33 +84,7 @@ class Linker(object):
         for folder in self.folder_patterns:
             dest_folder_path = join(self.dest, folder)
             src_folder_path = join(self.src, folder)
-
-            if (exists(dest_folder_path) and
-                exists(src_folder_path) and not
-                    islink(dest_folder_path)):
-
-                # Syncronize dirs
-                absent_files, absent_dirs = find_absences(dest_folder_path,
-                                                          src_folder_path)
-                print make_archive("{}_backup".format(folder).strip("."),
-                                   "zip", root_dir=dest_folder_path)
-                create_dirs(absent_dirs)
-                move_files(absent_files)
-                rmtree(dest_folder_path)
-                symlink(src_folder_path, dest_folder_path)
-
-            elif exists(dest_folder_path) and not exists(src_folder_path):
-                print("Moving and symlinking {}".format(folder))
-                print make_archive("{}_backup".format(folder).strip("."),
-                                   "zip", root_dir=dest_folder_path)
-                move(dest_folder_path, src_folder_path)
-                rmtree(dest_folder_path)
-                symlink(src_folder_path, dest_folder_path)
-
-            elif not exists(dest_folder_path) and exists(src_folder_path):
-                print("Symlinking {}".format(folder))
-                symlink(src_folder_path, dest_folder_path)
-
+            link_folder(src_folder_path, dest_folder_path)
 
 if __name__ == '__main__':
     linker = Linker()

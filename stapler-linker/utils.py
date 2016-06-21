@@ -1,10 +1,12 @@
 from collections import namedtuple
 from os import makedirs, symlink, walk
-from os.path import relpath, join, exists
-from shutil import move
+from os.path import relpath, join, exists, islink, basename
+from shutil import move, make_archive, rmtree
 import sys
 import re
+import logging
 
+logger = logging.getLogger(__name__)
 
 Transaction = namedtuple('Transaction', ['src', 'dest'])
 
@@ -96,7 +98,7 @@ def get_lines_from_file(file_path):
         return [line.split("#", 1)[0].strip("\n")
                 for line in open(file_path)
                 if line.split("#", 1)[0] != ""]
-    except IOError:
+    except OSError:
         return [""]
 
 
@@ -140,7 +142,11 @@ def create_links(links=None):
     """
     if links:
         for link in links:
-            symlink(link.src, link.dest)
+            try:
+                symlink(link.src, link.dest)
+            except OSError:
+                logger.error("Can't make link from {} to {}".format(link.src,
+                                                                    link.dest))
 
 
 def move_files(transactions=None):
@@ -154,6 +160,58 @@ def move_files(transactions=None):
     """
     if transactions:
         for transaction in transactions:
-            move(transaction.src, transaction.dest)
+            try:
+                move(transaction.src, transaction.dest)
+            except OSError:
+                logger.error("Can't move from {} to {}"
+                             .format(transaction.src, transaction.dest))
 
 
+def link_folder(src, dest):
+    """Link the folder src to the destination dest
+
+    Args:
+        src (path) - The path to link from
+        dest (path) - The path to link to
+
+    Returns:
+        None
+    """
+    folder = basename(src).strip(".")
+
+    try:
+
+        if (exists(dest) and
+            exists(src) and not
+                islink(dest)):
+
+            # Syncronize dirs
+            absent_files, absent_dirs = find_absences(dest, src)
+            zip_file = make_archive("{}_backup".format(folder),
+                                    "zip",
+                                    root_dir=dest)
+            logger.info("Backing up {} to {}".format(folder, zip_file))
+            create_dirs(absent_dirs)
+            logger.info("Created {}".format(absent_dirs))
+            move_files(absent_files)
+            logger.info("Moving files {}".format(absent_files))
+            rmtree(dest)
+            logger.info("Removed {}".format(dest))
+            symlink(src, dest)
+            logger.info("Symlinked {} to {}".format(src,
+                                                    dest))
+
+        elif exists(dest) and not exists(src):
+            move(dest, src)
+            logger.info("Moving {} to {}".format(dest, src))
+            rmtree(dest)
+            logger.info("Removed {}".format(dest))
+            symlink(src, dest)
+            logger.info("Symlinked {} to {}".format(src, dest))
+
+        elif not exists(dest) and exists(src):
+            symlink(src, dest)
+            logger.info("Symlinked {} to {}".format(src, dest))
+
+    except OSError:
+        logger.error("Failed to link files", exc_info=True)
