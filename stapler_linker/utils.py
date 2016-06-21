@@ -177,20 +177,17 @@ def link_folder(src, dest):
     Returns:
         None
     """
-    folder = basename(src).strip(".")
+    folder_name = basename(src).strip(".")
 
     try:
 
-        if (exists(dest) and
-            exists(src) and not
-                islink(dest)):
-
-            # Syncronize dirs
+        # Both Folders Exist
+        if exists(dest) and exists(src) and not islink(dest):
             absent_files, absent_dirs = find_absences(dest, src)
-            zip_file = make_archive("{}_backup".format(folder),
+            zip_file = make_archive("{}_backup".format(folder_name),
                                     "zip",
                                     root_dir=dest)
-            logger.info("Backing up {} to {}".format(folder, zip_file))
+            logger.info("Backing up {} to {}".format(folder_name, zip_file))
             create_dirs(absent_dirs)
             logger.info("Created {}".format(absent_dirs))
             move_files(absent_files)
@@ -200,7 +197,12 @@ def link_folder(src, dest):
             symlink(src, dest)
             logger.info("Symlinked {} to {}".format(src,
                                                     dest))
+        # Only the source exists
+        elif not exists(dest) and exists(src):
+            symlink(src, dest)
+            logger.info("Symlinked {} to {}".format(src, dest))
 
+        # Only the destination exists
         elif exists(dest) and not exists(src):
             move(dest, src)
             logger.info("Moving {} to {}".format(dest, src))
@@ -209,9 +211,6 @@ def link_folder(src, dest):
             symlink(src, dest)
             logger.info("Symlinked {} to {}".format(src, dest))
 
-        elif not exists(dest) and exists(src):
-            symlink(src, dest)
-            logger.info("Symlinked {} to {}".format(src, dest))
-
     except OSError:
-        logger.error("Failed to link files", exc_info=True)
+        logger.error("Failed to link folder {} to {}", src,
+                     dest, exc_info=True)
