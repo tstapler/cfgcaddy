@@ -6,7 +6,7 @@ import sys
 import re
 import logging
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("stapler-linker")
 
 Transaction = namedtuple('Transaction', ['src', 'dest'])
 
@@ -129,7 +129,10 @@ def create_dirs(dirs=None):
     """
     if dirs:
         for dir_name in dirs:
-            makedirs(dir_name)
+            try:
+                makedirs(dir_name)
+            except OSError:
+                logger.error("Unable to create directory: {}", dir_name)
 
 
 def create_links(links=None):
@@ -175,12 +178,11 @@ def link_folder(src, dest):
         dest (path) - The path to link to
 
     Returns:
-        None
+        True if an operation was performed, else False
     """
     folder_name = basename(src).strip(".")
 
     try:
-
         # Both Folders Exist
         if exists(dest) and exists(src) and not islink(dest):
             absent_files, absent_dirs = find_absences(dest, src)
@@ -197,10 +199,13 @@ def link_folder(src, dest):
             symlink(src, dest)
             logger.info("Symlinked {} to {}".format(src,
                                                     dest))
+            return True
+
         # Only the source exists
         elif not exists(dest) and exists(src):
             symlink(src, dest)
             logger.info("Symlinked {} to {}".format(src, dest))
+            return True
 
         # Only the destination exists
         elif exists(dest) and not exists(src):
@@ -210,7 +215,13 @@ def link_folder(src, dest):
             logger.info("Removed {}".format(dest))
             symlink(src, dest)
             logger.info("Symlinked {} to {}".format(src, dest))
+            return True
+
+        # Nothing to do
+        else:
+            return False
 
     except OSError:
         logger.error("Failed to link folder {} to {}", src,
                      dest, exc_info=True)
+        return True

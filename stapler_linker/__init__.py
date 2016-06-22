@@ -1,13 +1,10 @@
 import logging
-import sys
 
 from linker import Linker
 
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
-logger = logging.getLogger(__name__)
-ch = logging.StreamHandler()
-ch.setLevel(logging.INFO)
-logger.addHandler(ch)
+logger = logging.getLogger("stapler-linker")
+logger.addHandler(logging.StreamHandler())
+logger.setLevel(logging.INFO)
 
 if __name__ == '__main__':
 

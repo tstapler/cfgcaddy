@@ -1,13 +1,13 @@
 #! /usr/bin/env python
 from os.path import exists, join, expanduser, split
+import logging
 import os
 import sys
-import logging
 
 from utils import (create_dirs, create_links, get_lines_from_file,
                    parse_regex_file, query_yes_no, find_absences, link_folder)
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("stapler-linker")
 
 INSTALL_PLATFORM = sys.platform
 CONFIG_DIR = join(split(os.path.abspath(__file__))[0], "..", "..")
@@ -62,10 +62,10 @@ class Linker(object):
                                                   self.ignored_patterns)
 
         if len(absent_files) == 0:
-            print("No files to move")
+            logger.info("No files to move")
             return
 
-        print("Preparing to symlink the following files")
+        logger.info("Preparing to symlink the following files")
         print("\n".join(link.dest for link in absent_files))
         if query_yes_no("Are these the correct files?"):
             create_dirs(dirs=absent_dirs)
@@ -80,11 +80,16 @@ class Linker(object):
         Returns:
             None
         """
+        modified = False
 
         for folder in self.folder_patterns:
             dest_folder_path = join(self.dest, folder)
             src_folder_path = join(self.src, folder)
-            link_folder(src_folder_path, dest_folder_path)
+            modified = modified or link_folder(src_folder_path,
+                                               dest_folder_path)
+
+        if not modified:
+            logger.info("No folders to link")
 
 if __name__ == '__main__':
     linker = Linker()
