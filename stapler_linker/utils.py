@@ -6,7 +6,7 @@ import sys
 import re
 import logging
 
-logger = logging.getLogger("stapler-linker")
+logger = logging.getLogger("stapler_linker.utils")
 
 Transaction = namedtuple('Transaction', ['src', 'dest'])
 
@@ -185,21 +185,23 @@ def link_folder(src, dest):
     try:
         # Both Folders Exist
         if exists(dest) and exists(src) and not islink(dest):
-            absent_files, absent_dirs = find_absences(dest, src)
-            zip_file = make_archive("{}_backup".format(folder_name),
-                                    "zip",
-                                    root_dir=dest)
-            logger.info("Backing up {} to {}".format(folder_name, zip_file))
-            create_dirs(absent_dirs)
-            logger.info("Created {}".format(absent_dirs))
-            move_files(absent_files)
-            logger.info("Moving files {}".format(absent_files))
-            rmtree(dest)
-            logger.info("Removed {}".format(dest))
-            symlink(src, dest)
-            logger.info("Symlinked {} to {}".format(src,
-                                                    dest))
-            return True
+            if query_yes_no("Link and merge {} to {}".format(src, dest)):
+                absent_files, absent_dirs = find_absences(dest, src)
+                zip_file = make_archive("{}_backup".format(folder_name),
+                                        "zip",
+                                        root_dir=dest)
+                logger.info("Backing up {} to {}".format(folder_name,
+                                                         zip_file))
+                create_dirs(absent_dirs)
+                logger.info("Created {}".format(absent_dirs))
+                move_files(absent_files)
+                logger.info("Moving files {}".format(absent_files))
+                rmtree(dest)
+                logger.info("Removed {}".format(dest))
+                symlink(src, dest)
+                logger.info("Symlinked {} to {}".format(src,
+                                                        dest))
+                return True
 
         # Only the source exists
         elif not exists(dest) and exists(src):
@@ -209,17 +211,18 @@ def link_folder(src, dest):
 
         # Only the destination exists
         elif exists(dest) and not exists(src):
-            move(dest, src)
-            logger.info("Moving {} to {}".format(dest, src))
-            rmtree(dest)
-            logger.info("Removed {}".format(dest))
-            symlink(src, dest)
-            logger.info("Symlinked {} to {}".format(src, dest))
-            return True
+            if query_yes_no("Delete, Move to {} and Link back to {}?"
+                            .format(src, dest)):
+                move(dest, src)
+                logger.info("Moving {} to {}".format(dest, src))
+                rmtree(dest)
+                logger.info("Removed {}".format(dest))
+                symlink(src, dest)
+                logger.info("Symlinked {} to {}".format(src, dest))
+                return True
 
         # Nothing to do
-        else:
-            return False
+        return False
 
     except OSError:
         logger.error("Failed to link folder {} to {}", src,

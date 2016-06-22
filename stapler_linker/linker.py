@@ -7,7 +7,7 @@ import sys
 from utils import (create_dirs, create_links, get_lines_from_file,
                    parse_regex_file, query_yes_no, find_absences, link_folder)
 
-logger = logging.getLogger("stapler-linker")
+logger = logging.getLogger("stapler_linker.linker")
 
 INSTALL_PLATFORM = sys.platform
 CONFIG_DIR = join(split(os.path.abspath(__file__))[0], "..", "..")
@@ -27,21 +27,23 @@ class Linker(object):
         ignore_file:
     """
     def __init__(self,
-                 src=CONFIG_DIR,
-                 dest=HOME_DIR,
+                 src=None,
+                 dest=None,
                  folder_links_file=None,
                  ignore_file=None):
-        self.src = src
-        self.dest = dest
+        if not src:
+            self.src = CONFIG_DIR
+        if not dest:
+            self.dest = HOME_DIR
 
-        if folder_links_file is None:
+        if not folder_links_file:
             try:
                 self.folder_links_file = join(self.src, ".folderlinks")
                 exists(self.folder_links_file)
             except OSError:
                 logger.error(MISSING_FILE_MESSAGE.format(".folderlinks"))
                 sys.exit(1)
-        if ignore_file is None:
+        if not ignore_file:
             try:
                 self.ignore_file = join(self.src, ".linkerignore")
                 exists(self.ignore_file)
