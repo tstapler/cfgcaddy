@@ -170,7 +170,7 @@ def move_files(transactions=None):
                              .format(transaction.src, transaction.dest))
 
 
-def link_folder(src, dest):
+def link_folder(src, dest, force=False):
     """Link the folder src to the destination dest
 
     Args:
@@ -185,7 +185,8 @@ def link_folder(src, dest):
     try:
         # Both Folders Exist
         if exists(dest) and exists(src) and not islink(dest):
-            if query_yes_no("Link and merge {} to {}".format(src, dest)):
+            if force or query_yes_no("Link and merge {} to {}"
+                                    .format(src, dest)):
                 absent_files, absent_dirs = find_absences(dest, src)
                 zip_file = make_archive("{}_backup".format(folder_name),
                                         "zip",
@@ -211,8 +212,8 @@ def link_folder(src, dest):
 
         # Only the destination exists
         elif exists(dest) and not exists(src):
-            if query_yes_no("Delete, Move to {} and Link back to {}?"
-                            .format(src, dest)):
+            if force or query_yes_no("Delete, Move to {} and Link back to {}?"
+                                    .format(src, dest)):
                 move(dest, src)
                 logger.info("Moving {} to {}".format(dest, src))
                 rmtree(dest)
