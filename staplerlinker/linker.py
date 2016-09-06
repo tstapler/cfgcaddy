@@ -10,7 +10,7 @@ from utils import (create_dirs, create_links, get_lines_from_file,
 logger = logging.getLogger("stapler_linker.linker")
 
 INSTALL_PLATFORM = sys.platform
-CONFIG_DIR = join(split(os.path.abspath(__file__))[0], "..", "..")
+CONFIG_DIR = join(expanduser("~"), "dotfiles")
 HOME_DIR = expanduser("~")
 
 MISSING_FILE_MESSAGE = "Please create a {} file in the same" \

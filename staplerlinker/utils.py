@@ -1,5 +1,5 @@
 from collections import namedtuple
-from os import makedirs, symlink, walk
+from os import makedirs, symlink, walk, unlink
 from os.path import relpath, join, exists, islink, basename
 from shutil import move, make_archive, rmtree
 import sys
@@ -38,15 +38,21 @@ def find_absences(src, dest, ignored_patterns="a^"):
 
         # Create list of dirs that dont exist
         for dir_name in dirs:
-            if not exists(join(dest, rel_path, dir_name)):
-                absent_dirs.append(join(dest, rel_path, dir_name))
+            pathname = join(dest, rel_path, dir_name)
+            if not exists(pathname):
+                if islink(pathname):
+                    unlink(pathname)  # Fix Broken Links
+                absent_dirs.append(pathname)
 
         # Create a list of files to be symlinked
         for f in files:
-            if not exists(join(dest, rel_path, f)):
+            pathname = join(dest, rel_path, f)
+            if not exists(pathname):
+                if islink(pathname):
+                    unlink(pathname)  # Fix Broken Links
                 # Add the source and destination for the symlink
                 absent_files.append(Transaction(join(root, f),
-                                    join(dest, rel_path, f)))
+                                    pathname))
 
     return absent_files, absent_dirs
 
