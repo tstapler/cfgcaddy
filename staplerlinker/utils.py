@@ -153,9 +153,9 @@ def create_links(links=None):
         for link in links:
             try:
                 symlink(link.src, link.dest)
-            except OSError:
-                logger.error("Can't make link from {} to {}".format(link.src,
-                                                                    link.dest))
+            except OSError, err:
+                logger.error("Can't make link from {} to {} because {}"
+                             .format(link.src, link.dest, err.strerror))
 
 
 def move_files(transactions=None):
@@ -192,7 +192,7 @@ def link_folder(src, dest, force=False):
         # Both Folders Exist
         if exists(dest) and exists(src) and not islink(dest):
             if force or query_yes_no("Link and merge {} to {}"
-                                    .format(src, dest)):
+                                     .format(src, dest)):
                 absent_files, absent_dirs = find_absences(dest, src)
                 zip_file = make_archive("{}_backup".format(folder_name),
                                         "zip",
@@ -219,7 +219,7 @@ def link_folder(src, dest, force=False):
         # Only the destination exists
         elif exists(dest) and not exists(src):
             if force or query_yes_no("Delete, Move to {} and Link back to {}?"
-                                    .format(src, dest)):
+                                     .format(src, dest)):
                 move(dest, src)
                 logger.info("Moving {} to {}".format(dest, src))
                 rmtree(dest)
@@ -231,7 +231,6 @@ def link_folder(src, dest, force=False):
         # Nothing to do
         return False
 
-    except OSError:
-        logger.error("Failed to link folder {} to {}", src,
-                     dest, exc_info=True)
+    except OSError, err:
+        logger.error("Failed to link folder because {}".format(err), exc_info=True)
         return True
