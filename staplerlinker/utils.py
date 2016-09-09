@@ -211,7 +211,7 @@ def link_folder(src, dest, force=False):
                 return True
 
         # Only the source exists
-        elif not exists(dest) and exists(src):
+        elif not exists(dest) and not islink(dest) and exists(src):
             symlink(src, dest)
             logger.info("Symlinked {} to {}".format(src, dest))
             return True
