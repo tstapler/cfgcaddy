@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-from os.path import exists, join, expanduser, split
+from os.path import exists, join, expanduser
 import logging
 import os
 import sys
@@ -31,24 +31,33 @@ class Linker(object):
                  dest=None,
                  folder_links_file=None,
                  ignore_file=None):
-        if not src:
-            self.src = CONFIG_DIR
-        if not dest:
-            self.dest = HOME_DIR
+        try:
+            if not src:
+                self.src = CONFIG_DIR
+            else:
+                self.src = src
 
-        if not folder_links_file:
-            try:
-                self.folder_links_file = join(self.src, ".folderlinks")
-                exists(self.folder_links_file)
-            except OSError:
-                logger.error(MISSING_FILE_MESSAGE.format(".folderlinks"))
-                sys.exit(1)
-        if not ignore_file:
-            try:
-                self.ignore_file = join(self.src, ".linkerignore")
-                exists(self.ignore_file)
-            except OSError:
-                logger.error(MISSING_FILE_MESSAGE.format(".linkerignore"))
+            if not dest:
+                self.dest = HOME_DIR
+            else: 
+                self.dest = dest
+
+            if not folder_links_file :
+                    self.folder_links_file = join(self.src, ".folderlinks")
+            else:
+                self.folder_links_file = folder_links_file
+            if not ignore_file:
+                    self.ignore_file = join(self.src, ".linkerignore")
+            else:
+                self.ignore_file = ignore_file
+
+            exists(self.src)
+            exists(self.dest)
+            exists(self.folder_links_file)
+            exists(self.ignore_file)
+
+        except OSError, err:
+                logger.error(MISSING_FILE_MESSAGE.format(err.file))
                 sys.exit(1)
 
         self.folder_patterns = get_lines_from_file(self.folder_links_file)
