@@ -102,8 +102,6 @@ class Linker(object):
         lines = get_lines_from_file(filename)
 
         customlinks = []
-        import ipdb
-        ipdb.set_trace()
 
         for line in lines:
             parts = line.split(":")
