@@ -16,7 +16,7 @@ def link(source, destination):
     """Link a folder of dotfiles to a home, or other specified directory"""
     linker = Linker(src=source, dest=destination)
     linker.link_configs()
-    linker.link_folders()
+    linker.create_custom_links()
 
 
 if __name__ == '__main__':

@@ -1,7 +1,9 @@
 from collections import namedtuple
 from os import makedirs, symlink, walk, unlink
-from os.path import relpath, join, exists, islink, basename
+from os.path import relpath, join, exists, islink, basename, dirname
 from shutil import move, make_archive, rmtree
+from distutils import dir_util
+import distutils
 import sys
 import re
 import logging
@@ -212,6 +214,12 @@ def link_folder(src, dest, force=False):
 
         # Only the source exists
         elif not exists(dest) and not islink(dest) and exists(src):
+            try:
+                dir_util.mkpath(dirname(dest), verbose=1)
+            except distutils.errors.DistutilsFileError, err:
+                logger.error("Failed to make dir of {}".format(dest),
+                             exc_info=True)
+                return
             symlink(src, dest)
             logger.info("Symlinked {} to {}".format(src, dest))
             return True
@@ -231,6 +239,7 @@ def link_folder(src, dest, force=False):
         # Nothing to do
         return False
 
-    except OSError, err:
-        logger.error("Failed to link folder because {}".format(err), exc_info=True)
+    except OSError:
+        logger.error("Failed to link {} to {}".format(src,
+                     dest), exc_info=True)
         return True

@@ -1,7 +1,6 @@
 #! /usr/bin/env python
 from os.path import exists, join, expanduser
 import logging
-import os
 import sys
 
 from utils import (create_dirs, create_links, get_lines_from_file,
@@ -29,7 +28,7 @@ class Linker(object):
     def __init__(self,
                  src=None,
                  dest=None,
-                 folder_links_file=None,
+                 customlinks_file=None,
                  ignore_file=None):
         try:
             if not src:
@@ -39,13 +38,13 @@ class Linker(object):
 
             if not dest:
                 self.dest = HOME_DIR
-            else: 
+            else:
                 self.dest = dest
 
-            if not folder_links_file :
-                    self.folder_links_file = join(self.src, ".folderlinks")
+            if not customlinks_file:
+                    self.customlinks_file = join(self.src, ".customlinks")
             else:
-                self.folder_links_file = folder_links_file
+                self.customlinks_file = customlinks_file
             if not ignore_file:
                     self.ignore_file = join(self.src, ".linkerignore")
             else:
@@ -53,14 +52,14 @@ class Linker(object):
 
             exists(self.src)
             exists(self.dest)
-            exists(self.folder_links_file)
+            exists(self.customlinks_file)
             exists(self.ignore_file)
 
         except OSError, err:
                 logger.error(MISSING_FILE_MESSAGE.format(err.file))
                 sys.exit(1)
 
-        self.folder_patterns = get_lines_from_file(self.folder_links_file)
+        self.customlinks = self._parse_customlinks(self.customlinks_file)
         self.ignored_patterns = parse_regex_file(self.ignore_file)
 
     def link_configs(self):
@@ -82,8 +81,8 @@ class Linker(object):
             create_dirs(dirs=absent_dirs)
             create_links(links=absent_files)
 
-    def link_folders(self):
-        """Link all the files in the folderlink file
+    def create_custom_links(self):
+        """Link all the files in the customlink file
 
         Args:
             None
@@ -93,17 +92,27 @@ class Linker(object):
         """
         modified = False
 
-        for folder in self.folder_patterns:
-            dest_folder_path = join(self.dest, folder)
-            src_folder_path = join(self.src, folder)
-            modified = modified or link_folder(src_folder_path,
-                                               dest_folder_path)
+        for src, dest in self.customlinks:
+            modified = modified or link_folder(src, dest)
 
         if not modified:
             logger.info("No folders to link")
 
-if __name__ == '__main__':
-    linker = Linker()
+    def _parse_customlinks(self, filename):
+        lines = get_lines_from_file(filename)
 
-    linker.link_folders()
-    linker.link_configs()
+        customlinks = []
+        import ipdb
+        ipdb.set_trace()
+
+        for line in lines:
+            parts = line.split(":")
+            if len(parts) > 1:
+                for i in range(1, len(parts)):
+                    customlinks.append([join(self.src, parts[0]),
+                                        join(self.dest, parts[i])])
+            else:
+                customlinks.append([join(self.src, parts[0]),
+                                    join(self.dest, parts[0])])
+
+        return customlinks
