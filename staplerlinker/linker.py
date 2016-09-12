@@ -9,8 +9,8 @@ from utils import (create_dirs, create_links, get_lines_from_file,
 logger = logging.getLogger("stapler_linker.linker")
 
 INSTALL_PLATFORM = sys.platform
-CONFIG_DIR = join(expanduser("~"), "dotfiles")
-HOME_DIR = expanduser("~")
+DEFAULT_DOTFILES_DIR = join(expanduser("~"), "dotfiles")
+DEFAULT_HOME_DIR = expanduser("~")
 
 MISSING_FILE_MESSAGE = "Please create a {} file in the same" \
                        " directory as the linker python file."
@@ -37,7 +37,7 @@ class Linker(object):
                 self.src = src
 
             if not dest:
-                self.dest = HOME_DIR
+                self.dest = DEFAULT_HOME_DIR
             else:
                 self.dest = dest
 
