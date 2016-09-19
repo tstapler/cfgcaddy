@@ -1,22 +1,11 @@
-import shutil
-import tempfile
-
 from filecmp import dircmp
-from unittest import TestCase
 
 from staplerlinker.utils import link_folder
-from staplerlinker.tests import (list_files, handle_links,
-                                 create_files_from_tree)
+from staplerlinker.tests import (list_files, create_files_from_tree,
+                                 FileLinkTestCase)
 
 
-class TestLinkFolder(TestCase):
-    def setUp(self):
-        self.source_dir = tempfile.mkdtemp()
-        self.dest_dir = tempfile.mkdtemp()
-
-    def tearDown(self):
-        shutil.rmtree(self.source_dir, onerror=handle_links)
-        shutil.rmtree(self.dest_dir, onerror=handle_links)
+class TestLinkFolder(FileLinkTestCase):
 
     def recursive_dircmp(self, dircmp_obj):
         self.assertListEqual(dircmp_obj.left_only, [])

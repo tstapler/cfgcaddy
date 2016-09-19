@@ -1,4 +1,7 @@
 import os
+import shutil
+import tempfile
+import unittest
 
 
 def list_files(startpath):
@@ -24,3 +27,13 @@ def create_files_from_tree(tree, parent=''):
             create_files_from_tree(content, parent=name)
         else:
             open(name, 'a').close()
+
+
+class FileLinkTestCase(unittest.TestCase):
+    def setUp(self):
+        self.source_dir = tempfile.mkdtemp()
+        self.dest_dir = tempfile.mkdtemp()
+
+    def tearDown(self):
+        shutil.rmtree(self.source_dir, onerror=handle_links)
+        shutil.rmtree(self.dest_dir, onerror=handle_links)
