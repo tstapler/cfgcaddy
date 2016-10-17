@@ -55,7 +55,7 @@ class Linker(object):
             exists(self.customlinks_file)
             exists(self.ignore_file)
 
-        except OSError, err:
+        except (OSError, err):
                 logger.error(MISSING_FILE_MESSAGE.format(err.file))
                 sys.exit(1)
 
