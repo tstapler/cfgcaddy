@@ -60,7 +60,7 @@ def find_absences(src, dest, ignored_patterns="a^"):
 
 
 def query_yes_no(question, default="yes"):
-    """Ask a yes/no question via raw_input() and return their answer.
+    """Ask a yes/no question via and return their answer.
 
     Args:
         question (string): a string that is presented to the user.
@@ -81,9 +81,13 @@ def query_yes_no(question, default="yes"):
     else:
         raise ValueError("invalid default answer: '%s'" % default)
 
+    global input
+    try: input = raw_input
+    except NameError: pass
     while True:
+        # Fix Python 2.x.
         sys.stdout.write(question + prompt)
-        choice = raw_input().lower()
+        choice = input().lower()
         if default is not None and choice == '':
             return valid[default]
         elif choice in valid:
@@ -155,7 +159,7 @@ def create_links(links=None):
         for link in links:
             try:
                 symlink(link.src, link.dest)
-            except OSError, err:
+            except (OSError, err):
                 logger.error("Can't make link from {} to {} because {}"
                              .format(link.src, link.dest, err.strerror))
 
@@ -216,7 +220,7 @@ def link_folder(src, dest, force=False):
         elif not exists(dest) and not islink(dest) and exists(src):
             try:
                 dir_util.mkpath(dirname(dest), verbose=1)
-            except distutils.errors.DistutilsFileError, err:
+            except (distutils.errors.DistutilsFileError, err):
                 logger.error("Failed to make dir of {}".format(dest),
                              exc_info=True)
                 return
