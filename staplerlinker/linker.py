@@ -33,7 +33,7 @@ class Linker(object):
                  ignore_file=None):
         try:
             if not src:
-                self.src = CONFIG_DIR
+                self.src = DEFAULT_DOTFILES_DIR
             else:
                 self.src = src
 
@@ -56,7 +56,7 @@ class Linker(object):
             exists(self.customlinks_file)
             exists(self.ignore_file)
 
-        except OSError, err:
+        except(OSError, err):
                 logger.error(MISSING_FILE_MESSAGE.format(err.file))
                 sys.exit(1)
 
