@@ -4,7 +4,8 @@ import logging
 import sys
 
 from utils import (create_dirs, create_links, get_lines_from_file,
-                   parse_regex_file, query_yes_no, find_absences, link_folder)
+                   parse_regex_file, query_yes_no, find_absences, link_folder,
+                   Transaction)
 
 logger = logging.getLogger("stapler_linker.linker")
 
@@ -92,8 +93,9 @@ class Linker(object):
         """
         modified = False
 
-        for src, dest in self.customlinks:
-            modified = modified or link_folder(src, dest)
+        for file in self.customlinks:
+            if link_folder(file.src, file.dest):
+                modified = True
 
         if not modified:
             logger.info("No folders to link")
@@ -107,10 +109,10 @@ class Linker(object):
             parts = line.split(":")
             if len(parts) > 1:
                 for i in range(1, len(parts)):
-                    customlinks.append([join(self.src, parts[0]),
-                                        join(self.dest, parts[i])])
+                    customlinks.append(Transaction(join(self.src, parts[0]),
+                                       join(self.dest, parts[i])))
             else:
-                customlinks.append([join(self.src, parts[0]),
-                                    join(self.dest, parts[0])])
+                customlinks.append(Transaction(join(self.src, parts[0]),
+                                   join(self.dest, parts[0])))
 
         return customlinks
