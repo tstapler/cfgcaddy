@@ -33,6 +33,10 @@ class FileLinkTestCase(unittest.TestCase):
     def setUp(self):
         self.source_dir = tempfile.mkdtemp()
         self.dest_dir = tempfile.mkdtemp()
+        links_file = os.path.join(self.source_dir, ".customlinks")
+        ignore_file = os.path.join(self.source_dir, ".linkerignore")
+        open(links_file, 'a').close()
+        open(ignore_file, 'w').close()
 
     def tearDown(self):
         shutil.rmtree(self.source_dir, onerror=handle_links)

@@ -1,6 +1,6 @@
 from collections import namedtuple
 from os import makedirs, symlink, walk, unlink
-from os.path import relpath, join, exists, islink, basename, dirname
+from os.path import relpath, join, exists, isdir, isfile, islink, basename, dirname
 from shutil import move, make_archive, rmtree
 from distutils import dir_util
 import distutils
@@ -159,7 +159,7 @@ def create_links(links=None):
         for link in links:
             try:
                 symlink(link.src, link.dest)
-            except (OSError, err):
+            except (OSError) as err:
                 logger.error("Can't make link from {} to {} because {}"
                              .format(link.src, link.dest, err.strerror))
 
