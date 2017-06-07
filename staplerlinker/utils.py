@@ -1,4 +1,5 @@
 from collections import namedtuple
+import os
 from os import makedirs, symlink, walk, unlink
 from os.path import relpath, join, exists, isdir, isfile, islink, basename, dirname
 from shutil import move, make_archive, rmtree
@@ -147,6 +148,12 @@ def create_dirs(dirs=None):
                 logger.error("Unable to create directory: {}", dir_name)
 
 
+def make_parent_dirs(path):
+    try:
+        os.makedirs(dirname(path))
+    except OSError as exc:  # Python >2.5
+        pass
+
 def create_links(links=None):
     """Create symlinks for each item in links
 
@@ -158,6 +165,7 @@ def create_links(links=None):
     if links:
         for link in links:
             try:
+                make_parent_dirs(link.dest)
                 symlink(link.src, link.dest)
             except (OSError) as err:
                 logger.error("Can't make link from {} to {} because {}"
@@ -200,7 +208,7 @@ def link_folder(src, dest, force=False):
             if force or query_yes_no("Link and merge {} to {}"
                                      .format(src, dest)):
                 absent_files, absent_dirs = find_absences(dest, src)
-                zip_file = make_archive("{}_backup".format(folder_name),
+                zip_file = make_archive(join(src, "{}_backup".format(folder_name)),
                                         "zip",
                                         root_dir=dest)
                 logger.info("Backing up {} to {}".format(folder_name,

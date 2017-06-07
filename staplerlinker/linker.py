@@ -119,13 +119,15 @@ class Linker():
         for line in lines:
             parts = line.split(":")
             files = glob.glob(join(self.src, parts[0]))
-            for file in map(basename, files):
+            for file in files:
+                fname = basename(file)
                 if len(parts) > 1:
                     destination = join(self.dest, parts[len(parts) - 1])
-                    if isdir(destination):
-                        destination = join(destination, file)
+
+                    if isdir(destination) or len(files) > 1:
+                        destination = join(destination, fname)
                 else:
-                    destination = join(self.dest, file)
+                    destination = join(self.dest, fname)
 
                 if not islink(destination):
                     trans = Transaction(join(self.src, file),

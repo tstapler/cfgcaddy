@@ -1,7 +1,15 @@
+from functools import reduce
+import operator
 import os
 import shutil
 import tempfile
 import unittest
+
+def getFromDict(dataDict, mapList):
+    return reduce(operator.getitem, mapList, dataDict)
+
+def setInDict(dataDict, mapList, value):
+    getFromDict(dataDict, mapList[:-1])[mapList[-1]] = value
 
 
 def list_files(startpath):
@@ -12,6 +20,23 @@ def list_files(startpath):
         subindent = ' ' * 4 * (level + 1)
         for f in files:
             print('{}{}'.format(subindent, f))
+
+
+def dir_dict(startpath):
+    structure = {}
+    for root, dirs, files in os.walk(startpath):
+        current_level = os.path.relpath(root, startpath).split(os.sep)
+        depth = len(current_level)
+        if depth >= 1 and current_level[0] != '.':
+            current_dict = getFromDict(structure, current_level)
+        else:
+            current_dict = structure
+
+        for d in dirs:
+            current_dict[d] = {}
+        for f in files:
+            current_dict[f] = ""
+    return structure
 
 
 def handle_links(function, path, execinfo):
@@ -41,3 +66,9 @@ class FileLinkTestCase(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.source_dir, onerror=handle_links)
         shutil.rmtree(self.dest_dir, onerror=handle_links)
+
+    def recursive_dircmp(self, dircmp_obj):
+        self.assertListEqual(dircmp_obj.left_only, [])
+        self.assertListEqual(dircmp_obj.right_only, [])
+        for dir_name, dir in dircmp_obj.subdirs.iteritems():
+            self.recursive_dircmp(dir)
