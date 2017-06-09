@@ -1,24 +1,35 @@
 import os
-from filecmp import dircmp
 
 from staplerlinker.linker import Linker
 from staplerlinker.tests import (FileLinkTestCase,
                                  create_files_from_tree,
-                                 dir_dict,
-                                 list_files)
+                                 dir_dict)
 
 
 class TestCustomLinker(FileLinkTestCase):
 
-    def setUp(self):
-        super(TestCustomLinker, self).setUp()
+    def check_custom_link(self, line):
+        create_files_from_tree(self.source_tree, parent=self.source_dir)
+        create_files_from_tree(self.dest_tree, parent=self.dest_dir)
+
+        self.links_file = os.path.join(self.source_dir, ".customlinks")
+        with open(self.links_file, 'w') as f:
+            f.write("{}\n".format(line))
+
+        linker = Linker(src=self.source_dir,
+                        dest=self.dest_dir)
+
+        linker.create_custom_links()
+
+        self.assertDestAsExpected()
+
+    def assertDestAsExpected(self):
+        dest_tree = dir_dict(self.dest_dir)
+
+        self.assertEqual(self.expected_tree, dest_tree)
+
+    def test_subdirectory_glob(self):
         self.source_tree = {
-            "other": "",
-            "something.test": "",
-            "another.test": "",
-            "last.test": "",
-            "folder": {
-            },
             "sub": {
                 "file1": "",
                 "file2": "",
@@ -26,22 +37,59 @@ class TestCustomLinker(FileLinkTestCase):
             }
         }
 
-        self.dest_tree = {
-            "test_folder": {
-            },
-        }
-
         self.expected_tree = {
-            "other": "",
-            "something.test": "",
-            "another.test": "",
-            "last.test": "",
-            "different.test": "",
             "folder": {
                 "file1": "",
                 "file2": "",
                 "file3": "",
-            },
+            }
+        }
+
+        self.check_custom_link("sub/*:folder")
+
+    def test_basic_direct_copy(self):
+        self.source_tree = {
+            "other": "",
+        }
+
+        self.expected_tree = {
+            "other": "",
+        }
+
+        self.check_custom_link("other")
+
+    def test_basic_glob(self):
+        """docstring for test_basic_glob"""
+
+        self.source_tree = {
+            "something.test": "",
+            "another.test": "",
+            "last.test": "",
+        }
+
+        self.expected_tree = {
+            "something.test": "",
+            "another.test": "",
+            "last.test": "",
+        }
+
+        self.check_custom_link("*.test")
+
+    def test_basic_glob_to_existing_folder(self):
+        """docstring for test_basic_glob_to_folder"""
+
+        self.source_tree = {
+            "something.test": "",
+            "another.test": "",
+            "last.test": "",
+        }
+
+        self.dest_tree = {
+            "test_folder": {
+            }
+        }
+
+        self.expected_tree = {
             "test_folder": {
                 "something.test": "",
                 "another.test": "",
@@ -49,40 +97,37 @@ class TestCustomLinker(FileLinkTestCase):
             },
         }
 
-        create_files_from_tree(self.source_tree, parent=self.source_dir)
-        create_files_from_tree(self.dest_tree, parent=self.dest_dir)
+        self.check_custom_link("*.test:test_folder")
 
-        self.links_file = os.path.join(self.source_dir, ".customlinks")
-        with open(self.links_file, 'w') as f:
-            f.write("*.test\n")
-            f.write("*.test:test_folder\n")
-            f.write("last.test:different.test\n")
-            f.write("other\n")
-            f.write("sub/*:folder\n")
+    def test_basic_glob_to_non_existing_folder(self):
+        """docstring for test_basic_glob_to_folder"""
 
-    def test_customlinks_file_absent(self):
-        """Test when the custom links file doesn't exist"""
-        pass
+        self.source_tree = {
+            "something.test": "",
+            "another.test": "",
+            "last.test": "",
+        }
 
-    def test_customlinks_parser(self):
-        """Test that the custom linker does globbing correctly"""
-        linker = Linker(src=self.source_dir,
-                        dest=self.dest_dir)
+        self.expected_tree = {
+            "test_folder": {
+                "something.test": "",
+                "another.test": "",
+                "last.test": "",
+            },
+        }
 
-        links = linker._parse_customlinks(self.links_file)
+        self.check_custom_link("*.test:test_folder")
 
-        self.assertEqual(len(links), 11)
+    def test_rename_file(self):
+        self.source_tree = {
+            "last.test": "",
+        }
 
-    def test_customlinks(self):
-        """Test that the custom linker does globbing correctly"""
-        linker = Linker(src=self.source_dir,
-                        dest=self.dest_dir)
+        self.dest_tree = {
+        }
 
-        linker.create_custom_links()
+        self.expected_tree = {
+            "different.test": "",
+        }
 
-        print(list_files(self.source_dir))
-        print(list_files(self.dest_dir))
-
-        dest_tree = dir_dict(self.dest_dir)
-
-        self.assertEqual(self.expected_tree, dest_tree)
+        self.check_custom_link("last.test:different.test")

@@ -5,8 +5,10 @@ import shutil
 import tempfile
 import unittest
 
+
 def getFromDict(dataDict, mapList):
     return reduce(operator.getitem, mapList, dataDict)
+
 
 def setInDict(dataDict, mapList, value):
     getFromDict(dataDict, mapList[:-1])[mapList[-1]] = value
@@ -57,11 +59,18 @@ def create_files_from_tree(tree, parent=''):
 class FileLinkTestCase(unittest.TestCase):
     def setUp(self):
         self.source_dir = tempfile.mkdtemp()
+        self.source_tree = {}
+
         self.dest_dir = tempfile.mkdtemp()
-        links_file = os.path.join(self.source_dir, ".customlinks")
-        ignore_file = os.path.join(self.source_dir, ".linkerignore")
-        open(links_file, 'a').close()
-        open(ignore_file, 'w').close()
+        self.dest_tree = {}
+
+        self.expected_tree = {}
+
+        self.links_file = os.path.join(self.source_dir, ".customlinks")
+        self.ignore_file = os.path.join(self.source_dir, ".linkerignore")
+
+        open(self.links_file, 'a').close()
+        open(self.ignore_file, 'w').close()
 
     def tearDown(self):
         shutil.rmtree(self.source_dir, onerror=handle_links)
