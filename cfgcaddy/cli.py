@@ -4,7 +4,7 @@ import logging
 
 import linker
 
-logger = logging.getLogger("stapler_linker")
+logger = logging.getLogger("cfgcaddy")
 logger.addHandler(logging.StreamHandler())
 logger.setLevel(logging.INFO)
 

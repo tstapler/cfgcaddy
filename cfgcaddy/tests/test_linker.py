@@ -1,7 +1,7 @@
 import os
 
-from staplerlinker.linker import Linker
-from staplerlinker.tests import (FileLinkTestCase,
+from cfgcaddy.linker import Linker
+from cfgcaddy.tests import (FileLinkTestCase,
                                  create_files_from_tree,
                                  dir_dict)
 

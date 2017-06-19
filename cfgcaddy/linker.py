@@ -10,7 +10,7 @@ from utils import (
     parse_regex_file, query_yes_no,
 )
 
-logger = logging.getLogger("stapler_linker.linker")
+logger = logging.getLogger("cfgcaddy.linker")
 
 INSTALL_PLATFORM = sys.platform
 DEFAULT_DOTFILES_DIR = join(expanduser("~"), "dotfiles")

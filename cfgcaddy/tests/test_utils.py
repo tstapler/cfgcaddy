@@ -1,7 +1,7 @@
 from filecmp import dircmp
 
-from staplerlinker.utils import link_folder
-from staplerlinker.tests import (list_files, create_files_from_tree,
+from cfgcaddy.utils import link_folder
+from cfgcaddy.tests import (list_files, create_files_from_tree,
                                  FileLinkTestCase)
 
 

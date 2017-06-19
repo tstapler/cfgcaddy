@@ -9,7 +9,7 @@ import sys
 import re
 import logging
 
-logger = logging.getLogger("stapler_linker.utils")
+logger = logging.getLogger("cfgcaddy.utils")
 
 Transaction = namedtuple('Transaction', ['src', 'dest'])
 
