@@ -2,8 +2,8 @@ import os
 
 from cfgcaddy.linker import Linker
 from cfgcaddy.tests import (FileLinkTestCase,
-                                 create_files_from_tree,
-                                 dir_dict)
+                            create_files_from_tree,
+                            dir_dict)
 
 
 class TestCustomLinker(FileLinkTestCase):
@@ -117,6 +117,34 @@ class TestCustomLinker(FileLinkTestCase):
         }
 
         self.check_custom_link("*.test:test_folder")
+
+    def test_glob_folder_contents_to_folder(self):
+        """docstring for test_basic_glob_to_folder"""
+
+        self.source_tree = {
+            "somefolder": {
+                "something.test": "",
+                "another.test": "",
+                "last.test": "",
+            }
+        }
+
+        self.dest_tree = {
+            "test_folder": {
+                "existingfile.test": ""
+            }
+        }
+
+        self.expected_tree = {
+            "test_folder": {
+                "something.test": "",
+                "another.test": "",
+                "last.test": "",
+                "existingfile.test": ""
+            },
+        }
+
+        self.check_custom_link("somefolder/*.test:test_folder")
 
     def test_rename_file(self):
         self.source_tree = {
