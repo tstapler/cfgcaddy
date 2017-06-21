@@ -19,7 +19,7 @@ parser.add_argument("--dest", action="store",
 def link(source, destination):
     """Link a folder of dotfiles to a home, or other specified directory"""
     config_linker = linker.Linker(src=source, dest=destination)
-    config_linker.link_configs()
+    config_linker.create_links()
     config_linker.create_custom_links()
 
 

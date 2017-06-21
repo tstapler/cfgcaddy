@@ -1,8 +1,7 @@
 from filecmp import dircmp
 
+from cfgcaddy.tests import FileLinkTestCase, create_files_from_tree, list_files
 from cfgcaddy.utils import link_folder
-from cfgcaddy.tests import (list_files, create_files_from_tree,
-                                 FileLinkTestCase)
 
 
 class TestLinkFolder(FileLinkTestCase):

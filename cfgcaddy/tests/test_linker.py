@@ -1,9 +1,6 @@
-import os
-
+from cfgcaddy.config import LinkerConfig
 from cfgcaddy.linker import Linker
-from cfgcaddy.tests import (FileLinkTestCase,
-                            create_files_from_tree,
-                            dir_dict)
+from cfgcaddy.tests import FileLinkTestCase, create_files_from_tree
 
 
 class TestCustomLinker(FileLinkTestCase):
@@ -12,21 +9,21 @@ class TestCustomLinker(FileLinkTestCase):
         create_files_from_tree(self.source_tree, parent=self.source_dir)
         create_files_from_tree(self.dest_tree, parent=self.dest_dir)
 
-        self.links_file = os.path.join(self.source_dir, ".customlinks")
-        with open(self.links_file, 'w') as f:
-            f.write("{}\n".format(line))
+        config = {
+            "preferences": {
+                "linker_src": self.source_dir,
+                "linker_dest": self.dest_dir
+            },
+            "links": [line],
+            "ignore": [".*ignore.*"]
+        }
+        config = LinkerConfig(prompt=False, default_config=config)
 
-        linker = Linker(src=self.source_dir,
-                        dest=self.dest_dir)
+        linker = Linker(config)
 
         linker.create_custom_links()
 
-        self.assertDestAsExpected()
-
-    def assertDestAsExpected(self):
-        dest_tree = dir_dict(self.dest_dir)
-
-        self.assertEqual(self.expected_tree, dest_tree)
+        self.assertDestMatchesExpected()
 
     def test_subdirectory_glob(self):
         self.source_tree = {
@@ -145,6 +142,20 @@ class TestCustomLinker(FileLinkTestCase):
         }
 
         self.check_custom_link("somefolder/*.test:test_folder")
+
+    def test_rename_file(self):
+        self.source_tree = {
+            "last.test": "",
+        }
+
+        self.dest_tree = {
+        }
+
+        self.expected_tree = {
+            "different.test": "",
+        }
+
+        self.check_custom_link("last.test:different.test")
 
     def test_rename_file(self):
         self.source_tree = {

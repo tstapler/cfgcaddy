@@ -66,11 +66,12 @@ class FileLinkTestCase(unittest.TestCase):
 
         self.expected_tree = {}
 
-        self.links_file = os.path.join(self.source_dir, ".customlinks")
-        self.ignore_file = os.path.join(self.source_dir, ".linkerignore")
+        self.config_file_path = os.path.join(
+            self.source_dir,
+            ".cfgcaddyrc"
+        )
 
-        open(self.links_file, 'a').close()
-        open(self.ignore_file, 'w').close()
+        open(self.config_file_path, 'a').close()
 
     def tearDown(self):
         shutil.rmtree(self.source_dir, onerror=handle_links)
@@ -81,3 +82,8 @@ class FileLinkTestCase(unittest.TestCase):
         self.assertListEqual(dircmp_obj.right_only, [])
         for dir_name, dir in dircmp_obj.subdirs.iteritems():
             self.recursive_dircmp(dir)
+
+    def assertDestMatchesExpected(self):
+        dest_tree = dir_dict(self.dest_dir)
+
+        self.assertEqual(self.expected_tree, dest_tree)
