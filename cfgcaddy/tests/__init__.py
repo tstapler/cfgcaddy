@@ -68,7 +68,7 @@ class FileLinkTestCase(unittest.TestCase):
 
         self.config_file_path = os.path.join(
             self.source_dir,
-            ".cfgcaddy.yaml"
+            ".cfgcaddy.yml"
         )
 
         open(self.config_file_path, 'a').close()

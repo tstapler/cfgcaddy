@@ -1,4 +1,3 @@
-import glob
 import logging
 import sys
 from os import path
@@ -6,7 +5,6 @@ from os import path
 import inquirer
 
 import utils
-from link import Link
 
 logger = logging.getLogger("cfgcaddy.linker")
 
@@ -22,8 +20,8 @@ class Linker():
 
         self.config = linker_config
 
-        self.custom_links = self.link_object_factory(self.config.links)
-        self.ignored_patterns = utils.join_ignore_regex(self.config.ignore)
+        self.custom_links = self.config.links
+        self.ignored_patterns = self.config.ignore_patterns
 
     def create_links(self):
         """Symlinks configuration files to the destination directory
@@ -70,29 +68,3 @@ class Linker():
 
         if not modified:
             logger.info("No folders to link")
-
-    def link_object_factory(self, patterns):
-        custom_links = []
-
-        for line in patterns:
-            parts = line.split(":")
-            files = glob.glob(path.join(self.config.linker_src, parts[0]))
-            for file in files:
-                fname = path.basename(file)
-                if len(parts) > 1:
-                    destination = path.join(
-                        self.config.linker_dest, parts[len(parts) - 1])
-
-                    if path.isdir(destination) or len(files) > 1:
-                        destination = path.join(destination, fname)
-                else:
-                    destination = path.join(self.config.linker_dest, fname)
-
-                if not path.islink(destination):
-                    trans = Link(
-                        path.join(self.config.linker_src, file),
-                                  path.join(destination))
-                    custom_links.append(trans)
-
-        logger.debug("Custom Links => {}".format(custom_links))
-        return custom_links

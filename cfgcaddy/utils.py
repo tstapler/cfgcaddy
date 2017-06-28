@@ -75,19 +75,6 @@ def user_confirm(question, default=True):
     ]).get("ok")
 
 
-def join_ignore_regex(lines):
-    """Parse the gitignore style file
-
-    Args:
-        file_path (string): The path to the target file
-
-    Returns:
-        string: Returns the regexes derived from the file
-    """
-    if lines == []:
-        return "a^"
-    else:
-        return "(" + ")|(".join(lines) + ")"  # regex from list of regexes
 
 
 def create_dirs(dirs=None):
@@ -216,3 +203,7 @@ def link_folder(src, dest, force=False):
         logger.error("Failed to link {} to {}".format(src,
                      dest), exc_info=True)
         return True
+
+
+def expand_path(path):
+    return os.path.expandvars(os.path.expanduser(path))

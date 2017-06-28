@@ -7,6 +7,7 @@ import inquirer
 
 import cfgcaddy
 import cfgcaddy.config
+import cfgcaddy.utils
 import linker
 
 logger = logging.getLogger("cfgcaddy")
@@ -14,34 +15,29 @@ logger.addHandler(logging.StreamHandler())
 logger.setLevel(logging.INFO)
 
 
-def expand_path(path):
-    return os.path.expandvars(os.path.expanduser(path))
-
-
 config_questions = {
     "preferences": [
         inquirer.Text(name="linker_src",
                       message="Where are your config files located?",
-                      validate=lambda _, p: os.path.isdir(expand_path(p))),
+                      validate=lambda _, p: os.path.isdir(
+                          cfgcaddy.utils.expand_path(p))),
         inquirer.Text(name="linker_dest",
                       message="Where should your configs be linked to?",
                       default=cfgcaddy.HOME_DIR,
-                      validate=lambda _, p: os.path.isdir(expand_path(p)))
+                      validate=lambda _, p: os.path.isdir(cfgcaddy.utils.expand_path(p)))
 
         # TODO: Add additional preferences like what to do on a conflict
         # or the ability to use a basic ignore (.git, only .*, etc)
     ],
     "links": [],
     "ignore": []
-
 }
 
 
-def create_config(config_path):
-    new_config = {}
+def create_config(config_path, new_config={}):
     for section, questions in config_questions.items():
-        new_config[section] = inquirer.prompt(questions)
-    logger.info(new_config)
+        if not new_config.get(section):
+            new_config[section] = inquirer.prompt(questions)
     config = cfgcaddy.config.LinkerConfig(config_file_path=config_path,
                                           default_config=new_config)
     config.write_config()
@@ -71,22 +67,37 @@ def link(config):
 
 
 @main.command()
-@click.argument('src_directory', type=click.Path(exists=True))
-@click.argument('dest_directory', type=click.Path(exists=True))
-@click.option('-c', '--config',
+@click.argument('src_directory', type=click.Path(exists=True,
+                                                 file_okay=False))
+@click.argument('dest_directory', type=click.Path(exists=True,
+                                                  file_okay=False))
+@click.option('-c', '--config', type=click.Path(exists=True,
+                                                dir_okay=False),
               help="The path to your cfgcaddy.yml")
 def init(src_directory, dest_directory, config):
     """Create or import a caddy config"""
-    if os.path.isfile(cfgcaddy.DEFAULT_CONFIG_PATH):
-        logger.info("A cfgcaddy config is already present")
-    elif os.path.isfile(config):
-        try:
-            os.symlink(config, cfgcaddy.DEFAULT_CONFIG_PATH)
-        except OSError:
-            logger.error("Symlinking existing cfgcaddy config failed")
-    elif os.path.isdir(src_directory) and os.path.isdir(dest_directory):
-        pass
+    src_config_path = os.path.join(src_directory, cfgcaddy.DEFAULT_CONFIG_NAME)
 
+    if os.path.isfile(cfgcaddy.DEFAULT_CONFIG_PATH):
+        logger.error("A cfgcaddy config is already present")
+    elif config:
+        symlink_config("provided", config, cfgcaddy.DEFAULT_CONFIG_PATH)
+    elif os.path.exists(src_config_path):
+        symlink_config(
+            "existing", src_config_path, cfgcaddy.DEFAULT_CONFIG_PATH)
+    else:
+        create_config(
+            cfgcaddy.DEFAULT_CONFIG_PATH, {
+                "preferences": {"linker_src": src_directory,
+                                "linker_dest": dest_directory}})
+
+
+def symlink_config(kind, src, dest):
+    try:
+        logger.info("Symlinking {} cfgcaddy config".format(kind))
+        os.symlink(src, dest)
+    except OSError:
+        logger.error("Symlinking {} cfgcaddy config failed".format(kind))
 
 if __name__ == '__main__':
     main()

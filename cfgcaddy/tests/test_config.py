@@ -42,4 +42,6 @@ class TestLinkerConfig(FileLinkTestCase):
         with open(self.config_file_path) as file:
             output = yaml.load(file)
 
+        print(output)
+
         self.assertDictEqual(self.default_config, output)
