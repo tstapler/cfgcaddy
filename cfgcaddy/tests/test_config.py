@@ -17,7 +17,7 @@ class TestLinkerConfig(FileLinkTestCase):
 
     def test_empty_config(self):
         with self.assertRaises(SystemExit) as cm:
-            LinkerConfig(self.config_file_path, prompt=False)
+            LinkerConfig(self.config_file_path)
 
         self.assertEqual(cm.exception.code, 1)
 
@@ -33,10 +33,9 @@ class TestLinkerConfig(FileLinkTestCase):
         }
 
         linker_config = LinkerConfig(self.config_file_path,
-                                     prompt=False,
                                      default_config=self.default_config)
 
-        linker_config.write_config()
+        linker_config.write_config(prompt=False)
 
         output = {}
 
@@ -44,23 +43,3 @@ class TestLinkerConfig(FileLinkTestCase):
             output = yaml.load(file)
 
         self.assertDictEqual(self.default_config, output)
-
-    @patch('inquirer.prompt')
-    def test_load_section_inquire(self, prompt):
-        pref_section = {
-            "linker_src": self.source_dir,
-            "linker_dest": self.dest_dir
-        }
-
-        self.default_config = {
-            "preferences": pref_section
-        }
-
-        prompt.return_value = pref_section
-        link_cfg = LinkerConfig(self.config_file_path,
-                                prompt=False,
-                                default_config=self.default_config)
-
-        link_cfg.load_section("preferences")
-
-        self.assertDictEqual(pref_section, link_cfg.config["preferences"])

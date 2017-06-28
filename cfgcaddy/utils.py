@@ -1,14 +1,14 @@
-import os
-from os import path
-from shutil import move, make_archive, rmtree
-from distutils import dir_util
 import distutils
-import re
 import logging
+import os
+import re
+from distutils import dir_util
+from os import path
+from shutil import make_archive, move, rmtree
 
 import inquirer
 
-from cfgcaddy.link import Link
+from link import Link
 
 logger = logging.getLogger("cfgcaddy.utils")
 

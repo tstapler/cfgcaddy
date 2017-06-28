@@ -17,7 +17,7 @@ class TestCustomLinker(FileLinkTestCase):
             "links": [line],
             "ignore": [".*ignore.*"]
         }
-        config = LinkerConfig(prompt=False, default_config=config)
+        config = LinkerConfig(default_config=config)
 
         linker = Linker(config)
 
@@ -142,20 +142,6 @@ class TestCustomLinker(FileLinkTestCase):
         }
 
         self.check_custom_link("somefolder/*.test:test_folder")
-
-    def test_rename_file(self):
-        self.source_tree = {
-            "last.test": "",
-        }
-
-        self.dest_tree = {
-        }
-
-        self.expected_tree = {
-            "different.test": "",
-        }
-
-        self.check_custom_link("last.test:different.test")
 
     def test_rename_file(self):
         self.source_tree = {

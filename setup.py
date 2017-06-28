@@ -10,6 +10,11 @@ setup(name='cfgcaddy',
       packages=['cfgcaddy'],
       install_requires=[
           "inquirer",
-          "yaml"
+          "ruamel.yaml"
       ],
+      entry_points={
+          'console_scripts': [
+              'cfgcaddy = cfgcaddy.__main__:main'
+          ]
+      },
       zip_safe=True)
