@@ -1,13 +1,13 @@
+import glob
 import logging
 import os
-from os import path
-import glob
 import sys
+from os import path
 
 from ruamel.yaml import YAML
 
-from link import Link
 import utils
+from link import Link
 
 logger = logging.getLogger("cfgcaddy.config")
 
@@ -36,7 +36,6 @@ class LinkerConfig():
             logger.error("No config has been provided or loaded")
             sys.exit(1)
 
-
         if not self.linker_src or not self.linker_dest:
             logger.error("You need to specify a src and destination")
             sys.exit(1)
@@ -57,7 +56,6 @@ class LinkerConfig():
         dest = "linker_dest"
         return self.preferences.get(dest)
 
-
     def write_config(self, prompt=True):
         if (not os.path.exists(self.config_file_path) or (not prompt or
             utils.user_confirm("The file {} exists.\n"
@@ -65,10 +63,10 @@ class LinkerConfig():
                                .format(self.config_file_path)))):
             try:
                 logger.debug("Writing File")
-                yaml.dump(self, sys.stdout)
+                yaml.dump(self.config, sys.stdout)
                 with open(self.config_file_path, "w") as file:
                     logger.debug(self.config_file_path)
-                    yaml.dump(self, file)
+                    yaml.dump(self.config, file)
             except Exception as e:
                 logger.error("Error writing config: {}".format(e))
 
@@ -80,29 +78,20 @@ class LinkerConfig():
     def generate_links(self, links):
         custom_links = []
 
-        #import ipdb; ipdb.sset_trace()
+        # import ipdb
+        # ipdb.sset_trace()
         for link in links:
-            src = link
-            destinations = [link]
-            try:
-                src = link.items()[0]
-                destinations = link.items()[1]
-            except:
-                pass
+            src = link.items()[0][0]
             src_files = glob.glob(path.join(self.linker_src, src))
-            for file in src_files:
-                fname = path.basename(file)
+            for src_path in src_files:
+                destinations = link.items()[0][1] or [path.basename(src_path)]
                 for dest in destinations:
-                    destination = path.join(
-                        self.linker_dest, dest)
-                    if path.isdir(destination):
-                        destination = path.join(destination, fname)
-
-                        if not path.islink(destination):
-                            trans = Link(
-                                path.join(self.linker_src, file),
-                                          path.join(destination))
-                            custom_links.append(trans)
+                    dest_path = path.join(self.linker_dest, dest)
+                    # We're linking a glob to a folder
+                    if len(src_files) > 1 and link.items()[0][1] != []:
+                        dest_path = path.join(dest_path,
+                                              path.basename(src_path))
+                    custom_links.append(Link(src_path, dest_path))
 
         logger.debug("Custom Links => {}".format(custom_links))
         self.links = custom_links
