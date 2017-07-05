@@ -16,9 +16,11 @@ class Linker():
     """Tyler Stapler's Config Linker
     """
 
-    def __init__(self, linker_config):
+    def __init__(self, linker_config,
+                 prompt=True):
 
         self.config = linker_config
+        self.prompt = prompt
 
         self.custom_links = self.config.links
         self.ignored_patterns = self.config.ignore_patterns
@@ -41,7 +43,7 @@ class Linker():
 
         logger.info("Preparing to symlink the following files")
         print("\n".join(link.dest for link in absent_files))
-        if inquirer.prompt([
+        if not self.prompt or inquirer.prompt([
             inquirer.Confirm("correct", "Are these the correct files?")
         ]).get("correct"):
             utils.create_dirs(dirs=absent_dirs)
@@ -60,7 +62,7 @@ class Linker():
 
         for file in self.custom_links:
             if path.isdir(file.src):
-                if utils.link_folder(file.src, file.dest):
+                if utils.link_folder(file.src, file.dest, self.prompt):
                     modified = True
             if path.isfile(file.src):
                 if utils.create_links([file]):

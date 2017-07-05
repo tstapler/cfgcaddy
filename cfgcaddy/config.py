@@ -84,7 +84,7 @@ class LinkerConfig():
             src = link.items()[0][0]
             src_files = glob.glob(path.join(self.linker_src, src))
             for src_path in src_files:
-                destinations = link.items()[0][1] or [path.basename(src_path)]
+                destinations = link.items()[0][1] or [path.relpath(src_path, self.linker_src)]
                 for dest in destinations:
                     dest_path = path.join(self.linker_dest, dest)
                     # We're linking a glob to a folder

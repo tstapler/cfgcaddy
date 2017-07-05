@@ -6,6 +6,9 @@ from cfgcaddy.tests import FileLinkTestCase, create_files_from_tree
 
 
 def convert_link_format(line):
+    """Convert from the old linker format to the new format
+    src:dest => {src: dest}
+    """
     output = line.split(':')
     return {output[0]: output[1:]}
 
@@ -155,11 +158,23 @@ class TestCustomLinker(FileLinkTestCase):
             "last.test": "",
         }
 
-        self.dest_tree = {
-        }
-
         self.expected_tree = {
             "different.test": "",
         }
 
         self.check_custom_link("last.test:different.test")
+
+    def test_deep_copy(self):
+        self.source_tree = {
+            ".mixxx": {
+                "controllers": {}
+            }
+        }
+
+        self.expected_tree = {
+            ".mixxx": {
+                "controllers": {}
+            }
+        }
+
+        self.check_custom_link(".mixxx/controllers")
