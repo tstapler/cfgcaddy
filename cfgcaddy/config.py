@@ -5,6 +5,7 @@ import sys
 from os import path
 
 from ruamel.yaml import YAML
+from _ordereddict import ordereddict
 
 import utils
 from link import Link
@@ -19,7 +20,8 @@ yaml = YAML()
 
 
 class LinkerConfig():
-    config = {}
+    config = None
+    links = []
 
     def __init__(self,
                  config_file_path=None,
@@ -27,7 +29,7 @@ class LinkerConfig():
         self.config_file_path = config_file_path
 
         if default_config:
-            self.config = default_config
+            self.config = ordereddict(default_config, relax=True)
         elif self.config_file_path:
             self.read_config()
 
@@ -40,7 +42,7 @@ class LinkerConfig():
             logger.error("You need to specify a src and destination")
             sys.exit(1)
 
-        self.generate_links(self.config["links"])
+        self.generate_links(self.links_yaml)
 
     @property
     def preferences(self):
@@ -49,12 +51,12 @@ class LinkerConfig():
     @property
     def linker_src(self):
         src = "linker_src"
-        return self.preferences.get(src)
+        return utils.expand_path(self.preferences.get(src))
 
     @property
     def linker_dest(self):
         dest = "linker_dest"
-        return self.preferences.get(dest)
+        return utils.expand_path(self.preferences.get(dest))
 
     def write_config(self, prompt=True):
         if (not os.path.exists(self.config_file_path) or (not prompt or
@@ -77,24 +79,44 @@ class LinkerConfig():
 
     def generate_links(self, links):
         custom_links = []
-
         # import ipdb
         # ipdb.sset_trace()
         for link in links:
-            src = link.items()[0][0]
-            src_files = glob.glob(path.join(self.linker_src, src))
+            link_src = link[0]
+            link_dests = link[1]
+
+            # To account for no destination
+            if not link_dests:
+                link_dests = ['']
+            src_files = glob.glob(path.join(self.linker_src, link_src))
             for src_path in src_files:
-                destinations = link.items()[0][1] or [path.relpath(src_path, self.linker_src)]
-                for dest in destinations:
-                    dest_path = path.join(self.linker_dest, dest)
-                    # We're linking a glob to a folder
-                    if len(src_files) > 1 and link.items()[0][1] != []:
-                        dest_path = path.join(dest_path,
-                                              path.basename(src_path))
+                for dest in link_dests:
+                    if len(src_files) > 1:
+                        src_name = path.join(dest, path.basename(src_path))
+                    else:
+                        src_name = dest
+                        # src_name = path.relpath(src_path, self.linker_src)
+
+                    dest_path = path.join(self.linker_dest,
+                                          src_name)
                     custom_links.append(Link(src_path, dest_path))
 
         logger.debug("Custom Links => {}".format(custom_links))
         self.links = custom_links
+
+    @property
+    def links_yaml(self):
+        """Parse the YAML config representation into a consistent format"""
+        links = []
+        for link in self.config.get("links"):
+            if type(link) is str:
+                link = (link, [link])
+            else:
+                link = link.items()[0]
+                if type(link[1]) is str:
+                    link = (link[0], [link[1]])
+            links.append(link)
+        return links
 
     @property
     def ignore_patterns(self):

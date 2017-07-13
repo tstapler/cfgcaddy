@@ -13,6 +13,9 @@ class Link():
         if not os.path.exists(src):
             raise Exception("The source directory needs to exist!")
 
+    def __repr__(self):
+        return "{} => {}".format(self.src, self.dest)
+
     def execute(self, mode=LINK_MODE.SKIP):
 
         # TODO: if dest exists

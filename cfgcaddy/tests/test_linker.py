@@ -15,7 +15,7 @@ def convert_link_format(line):
 
 class TestCustomLinker(FileLinkTestCase):
 
-    def check_custom_link(self, line):
+    def check_custom_link(self, *lines):
         create_files_from_tree(self.source_tree, parent=self.source_dir)
         create_files_from_tree(self.dest_tree, parent=self.dest_dir)
 
@@ -24,12 +24,13 @@ class TestCustomLinker(FileLinkTestCase):
                 "linker_src": self.source_dir,
                 "linker_dest": self.dest_dir
             },
-            "links": [ordereddict(convert_link_format(line), relax=True)],
+            "links": [ordereddict(convert_link_format(line), relax=True)
+                      for line in lines],
             "ignore": [".*ignore.*"]
         }
-        config = LinkerConfig(default_config=config)
+        cfg = LinkerConfig(default_config=config)
 
-        linker = Linker(config)
+        linker = Linker(cfg)
 
         linker.create_custom_links()
 
@@ -178,3 +179,35 @@ class TestCustomLinker(FileLinkTestCase):
         }
 
         self.check_custom_link(".mixxx/controllers")
+
+    def test_nested_glob(self):
+        self.source_tree = {
+            "bin": {
+                "scripts": {
+                    "script1": "",
+                    "script2": "",
+                    "script3": "",
+                }
+            },
+            "stapler-scripts": {
+                    "script4": "",
+                    "script5": "",
+                    "script6": "",
+            }
+        }
+
+        self.expected_tree = {
+            "bin": {
+                "scripts": {
+                    "script1": "",
+                    "script2": "",
+                    "script3": "",
+                    "script4": "",
+                    "script5": "",
+                    "script6": "",
+                }
+            }
+        }
+
+        self.check_custom_link("bin/scripts/*:bin/scripts",
+                               "stapler-scripts/*:bin/scripts")

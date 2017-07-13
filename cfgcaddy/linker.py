@@ -19,6 +19,9 @@ class Linker():
     def __init__(self, linker_config,
                  prompt=True):
 
+        if not linker_config:
+            raise Exception("Linker requires Config!")
+
         self.config = linker_config
         self.prompt = prompt
 
