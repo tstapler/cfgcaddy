@@ -54,7 +54,7 @@ def create_config(config_path, new_config={}):
     return config
 
 
-@click.group(name="cfgcaddy")
+@click.group()
 def main():
     """A tool for managing your configuration files"""
     pass
@@ -98,7 +98,7 @@ def init(src_directory, dest_directory, config):
     else:
         create_config(
             cfgcaddy.DEFAULT_CONFIG_PATH, {
-                "preferences": { 
+                "preferences": {
                     "linker_src": src_directory,
                     "linker_dest": dest_directory
                 }
@@ -114,4 +114,4 @@ def symlink_config(kind, src, dest):
 
 
 if __name__ == '__main__':
-    main()
+    main(prog_name="cfgcaddy")

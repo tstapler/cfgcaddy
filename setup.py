@@ -9,7 +9,7 @@ setup(name='cfgcaddy',
       license='MIT',
       packages=['cfgcaddy'],
       install_requires=[
-          "ruamel.yaml"
+          "ruamel.yaml",
           "whaaaaat",
       ],
       entry_points={
