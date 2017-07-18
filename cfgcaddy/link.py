@@ -1,6 +1,11 @@
+import logging
 import os
 
 from cfgcaddy import LINK_MODE
+from cfgcaddy.utils import make_parent_dirs
+
+
+logger = logging.getLogger("cfgcaddy.link")
 
 
 class Link():
@@ -16,8 +21,13 @@ class Link():
     def __repr__(self):
         return "{} => {}".format(self.src, self.dest)
 
-    def execute(self, mode=LINK_MODE.SKIP):
+    @property
+    def is_linked(self):
+        return os.path.islink(self.dest)
 
+    def create(self, mode=LINK_MODE.SKIP):
+        if os.path.exists(self.dest):
+            pass
         # TODO: if dest exists
             # TODO: if dest is a link
                 # TODO: If override
@@ -35,6 +45,11 @@ class Link():
                 # TODO: if src is a file
                     # TODO: If override
                     # TODO: If skip
-
-        # TODO: if dest doesnt exist
-        pass
+        else:
+            # if dest doesnt exist create it
+            try:
+                make_parent_dirs(self.dest)
+                os.symlink(self.src, self.dest)
+            except (OSError) as err:
+                logger.error("Can't make link from {} to {} because {}"
+                             .format(self.src, self.dest, err.strerror))

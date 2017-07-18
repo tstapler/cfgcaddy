@@ -8,55 +8,7 @@ from shutil import make_archive, move, rmtree
 
 import inquirer
 
-from link import Link
-
 logger = logging.getLogger("cfgcaddy.utils")
-
-
-def find_absences(src, dest, ignored_patterns="a^"):
-    """ Walk the source directory and return a lists of files and dirs absent
-        from the destination directory
-
-    Args:
-        source: The path to copy from (Default is the script's location)
-        destination The path to copy to (Defaults to home directory)
-
-    Returns:
-        absent_files: a list of Links
-        absent_dirs: a list of paths to directories
-    """
-    absent_dirs = []
-    absent_files = []
-    for root, dirs, files in os.walk(src, topdown=True):
-        rel_path = path.relpath(root, src)
-        if rel_path == ".":
-            rel_path = ""
-
-        # Remove ignored directories from the walk
-        dirs[:] = [dir_name for dir_name in dirs
-                   if not re.match(ignored_patterns, dir_name)]
-        files[:] = [f for f in files
-                    if not re.match(ignored_patterns, f)]
-
-        # Create list of dirs that dont exist
-        for dir_name in dirs:
-            pathname = path.join(dest, rel_path, dir_name)
-            if not path.exists(pathname):
-                if path.islink(pathname):
-                    os.unlink(pathname)  # Fix Broken Links
-                absent_dirs.append(pathname)
-
-        # Create a list of files to be symlinked
-        for f in files:
-            pathname = path.join(dest, rel_path, f)
-            if not path.exists(pathname):
-                if path.islink(pathname):
-                    os.unlink(pathname)  # Fix Broken Links
-                # Add the source and destination for the symlink
-                absent_files.append(Link(path.join(root, f),
-                                    pathname))
-
-    return absent_files, absent_dirs
 
 
 def user_confirm(question, default=True):
@@ -73,8 +25,6 @@ def user_confirm(question, default=True):
     return inquirer.prompt([
         inquirer.Confirm(name="ok", message=question,  default=default)
     ]).get("ok")
-
-
 
 
 def create_dirs(dirs=None):
