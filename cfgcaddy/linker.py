@@ -1,11 +1,11 @@
+from distutils import dir_util
+import distutils
 import logging
 from os import path
 import os
 import re
+import shutil
 import sys
-
-
-import inquirer
 
 from cfgcaddy.link import Link
 import cfgcaddy.utils as utils
@@ -61,6 +61,77 @@ def find_absences(src, dest, ignored_patterns="a^"):
     return absent_files, absent_dirs
 
 
+def link_folder(src, dest, force=False):
+    """Link the folder src to the destination dest
+
+    Args:
+        src (path) - The path to link from
+        dest (path) - The path to link to
+
+    Returns:
+        True if an operation was performed, else False
+    """
+    folder_name = path.basename(src).strip(".")
+
+    try:
+        # Both Folders Exist
+        if path.exists(dest) and path.exists(src) and not path.islink(dest):
+            if force or utils.user_confirm("Link and merge {} to {}"
+                                           .format(src, dest)):
+                absent_files, absent_dirs = find_absences(dest, src)
+                zip_file = shutil.make_archive(
+                    path.join(src, "{}_backup".format(folder_name)),
+                                        "zip",
+                                        root_dir=dest)
+                logger.info("Backing up {} to {}".format(folder_name,
+                                                         zip_file))
+                utils.create_dirs(absent_dirs)
+                logger.info("Created {}".format(absent_dirs))
+                utils.move_files(absent_files)
+                logger.info("Moving files {}".format(absent_files))
+                shutil.rmtree(dest)
+                logger.info("Removed {}".format(dest))
+                os.symlink(src, dest)
+                logger.info("Symlinked {} to {}".format(src,
+                                                        dest))
+                return True
+
+        # Only the source exists
+        elif (not path.exists(dest) and
+              not path.islink(dest) and
+              path.exists(src)):
+            try:
+                dir_util.mkpath(path.dirname(dest), verbose=1)
+            except (distutils.errors.DistutilsFileError, err):
+                logger.error("Failed to make dir of {}".format(dest),
+                             exc_info=True)
+                return
+            os.symlink(src, dest)
+            logger.info("Symlinked {} to {}".format(src, dest))
+            return True
+
+        # Only the destination exists
+        elif path.exists(dest) and not path.exists(src):
+            if (force or
+                    utils.user_confirm("Delete, Move to {} and Link back to {}?"
+                                       .format(src, dest))):
+                shutil.move(dest, src)
+                logger.info("Moving {} to {}".format(dest, src))
+                shutil.rmtree(dest)
+                logger.info("Removed {}".format(dest))
+                os.symlink(src, dest)
+                logger.info("Symlinked {} to {}".format(src, dest))
+                return True
+
+        # Nothing to do
+        return False
+
+    except OSError:
+        logger.error("Failed to link {} to {}".format(src,
+                     dest), exc_info=True)
+        return True
+
+
 class Linker():
 
     """Tyler Stapler's Config Linker
@@ -87,8 +158,8 @@ class Linker():
         # TODO: Rewrite find_absences
         absent_files, absent_dirs = \
             find_absences(self.config.linker_src,
-                                self.config.linker_dest,
-                                self.ignored_patterns)
+                          self.config.linker_dest,
+                          self.ignored_patterns)
 
         if len(absent_files) == 0:
             logger.info("No files to move")
@@ -96,9 +167,8 @@ class Linker():
 
         logger.info("Preparing to symlink the following files")
         print("\n".join(link.dest for link in absent_files))
-        if not self.prompt or inquirer.prompt([
-            inquirer.Confirm("correct", "Are these the correct files?")
-        ]).get("correct"):
+        if (not self.prompt or
+                utils.user_confirm("Are these the correct files?")):
             utils.create_dirs(dirs=absent_dirs)
             utils.create_links(links=absent_files)
 
@@ -115,7 +185,7 @@ class Linker():
 
         for file in self.custom_links:
             if path.isdir(file.src):
-                if utils.link_folder(file.src, file.dest, self.prompt):
+                if link_folder(file.src, file.dest, self.prompt):
                     modified = True
             if path.isfile(file.src):
                 if utils.create_links([file]):

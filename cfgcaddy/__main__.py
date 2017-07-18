@@ -3,12 +3,13 @@ import logging
 import os
 
 import click
-import inquirer
 
 import cfgcaddy
 import cfgcaddy.config
 import cfgcaddy.utils
 import linker
+
+from whaaaaat import prompt
 
 logger = logging.getLogger("cfgcaddy")
 logger.addHandler(logging.StreamHandler())
@@ -17,14 +18,23 @@ logger.setLevel(logging.INFO)
 
 config_questions = {
     "preferences": [
-        inquirer.Text(name="linker_src",
-                      message="Where are your config files located?",
-                      validate=lambda _, p: os.path.isdir(
-                          cfgcaddy.utils.expand_path(p))),
-        inquirer.Text(name="linker_dest",
-                      message="Where should your configs be linked to?",
-                      default=cfgcaddy.HOME_DIR,
-                      validate=lambda _, p: os.path.isdir(cfgcaddy.utils.expand_path(p)))
+        {
+            "type": "input",
+            "name": "linker_src",
+            "message": "Where are your config files located?",
+            "validate": lambda p: p and os.path.isdir(
+                cfgcaddy.utils.expand_path(p)
+            )
+        },
+        {
+            "type": "input",
+            "name": "linker_dest",
+            "message": "Where should your configs be linked to?",
+            "default": cfgcaddy.HOME_DIR,
+            "validate": lambda p: p and os.path.isdir(
+                cfgcaddy.utils.expand_path(p)
+            )
+        }
 
         # TODO: Add additional preferences like what to do on a conflict
         # or the ability to use a basic ignore (.git, only .*, etc)
@@ -37,7 +47,7 @@ config_questions = {
 def create_config(config_path, new_config={}):
     for section, questions in config_questions.items():
         if not new_config.get(section):
-            new_config[section] = inquirer.prompt(questions)
+            new_config[section] = prompt(questions)
     config = cfgcaddy.config.LinkerConfig(config_file_path=config_path,
                                           default_config=new_config)
     config.write_config()
@@ -88,8 +98,11 @@ def init(src_directory, dest_directory, config):
     else:
         create_config(
             cfgcaddy.DEFAULT_CONFIG_PATH, {
-                "preferences": {"linker_src": src_directory,
-                                "linker_dest": dest_directory}})
+                "preferences": { 
+                    "linker_src": src_directory,
+                    "linker_dest": dest_directory
+                }
+            })
 
 
 def symlink_config(kind, src, dest):
@@ -98,6 +111,7 @@ def symlink_config(kind, src, dest):
         os.symlink(src, dest)
     except OSError:
         logger.error("Symlinking {} cfgcaddy config failed".format(kind))
+
 
 if __name__ == '__main__':
     main()

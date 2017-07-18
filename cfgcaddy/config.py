@@ -64,8 +64,7 @@ class LinkerConfig():
                                "Would you like to overwrite this file?"
                                .format(self.config_file_path)))):
             try:
-                logger.debug("Writing File")
-                yaml.dump(self.config, sys.stdout)
+                logger.info("Writing config file")
                 with open(self.config_file_path, "w") as file:
                     logger.debug(self.config_file_path)
                     yaml.dump(self.config, file)

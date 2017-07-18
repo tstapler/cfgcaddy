@@ -9,8 +9,8 @@ setup(name='cfgcaddy',
       license='MIT',
       packages=['cfgcaddy'],
       install_requires=[
-          "inquirer",
           "ruamel.yaml"
+          "whaaaaat",
       ],
       entry_points={
           'console_scripts': [
