@@ -1,8 +1,10 @@
-from _ordereddict import ordereddict
+from ruamel.yaml import YAML
 
 from cfgcaddy.config import LinkerConfig
 from cfgcaddy.linker import Linker
 from cfgcaddy.tests import FileLinkTestCase, create_files_from_tree
+
+yaml = YAML()
 
 
 def convert_link_format(line):
@@ -10,7 +12,11 @@ def convert_link_format(line):
     src:dest => {src: dest}
     """
     output = line.split(':')
-    return {output[0]: output[1:]}
+
+    if len(output) == 1:
+        return line
+    else:
+        return {output[0]: output[1:]}
 
 
 class TestCustomLinker(FileLinkTestCase):
@@ -24,11 +30,15 @@ class TestCustomLinker(FileLinkTestCase):
                 "linker_src": self.source_dir,
                 "linker_dest": self.dest_dir
             },
-            "links": [ordereddict(convert_link_format(line), relax=True)
+            "links": [convert_link_format(line)
                       for line in lines],
             "ignore": [".*ignore.*"]
         }
-        cfg = LinkerConfig(default_config=config)
+
+        with open(self.config_file_path, "w") as f:
+            yaml.dump(config, f)
+
+        cfg = LinkerConfig(config_file_path=self.config_file_path)
 
         linker = Linker(cfg)
 

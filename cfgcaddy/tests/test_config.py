@@ -1,10 +1,12 @@
 import os
 
-import yaml
-from mock import patch
+from ruamel.yaml import YAML
 
 from cfgcaddy.config import LinkerConfig
 from cfgcaddy.tests import FileLinkTestCase
+
+
+yaml = YAML()
 
 
 class TestLinkerConfig(FileLinkTestCase):
@@ -27,8 +29,8 @@ class TestLinkerConfig(FileLinkTestCase):
                 "linker_src": self.source_dir,
                 "linker_dest": self.dest_dir
             },
-            "links": {},
-            "ignore": {}
+            "links": [],
+            "ignore": []
 
         }
 

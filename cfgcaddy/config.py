@@ -84,11 +84,13 @@ class LinkerConfig():
         for link in links:
             link_src = link[0]
             link_dests = link[1]
-
+            src_files = glob.glob(path.join(self.linker_src, link_src))
             # To account for no destination
             if not link_dests:
-                link_dests = ['']
-            src_files = glob.glob(path.join(self.linker_src, link_src))
+                if len(src_files) > 1:
+                    link_dests = [path.dirname(link_src)]
+                else:
+                    link_dests = [link_src]
             for src_path in src_files:
                 for dest in link_dests:
                     if len(src_files) > 1:
@@ -110,7 +112,7 @@ class LinkerConfig():
         links = []
         for link in self.config.get("links"):
             if type(link) is str:
-                link = (link, [link])
+                link = (link, [])
             else:
                 link = link.items()[0]
                 if type(link[1]) is str:
