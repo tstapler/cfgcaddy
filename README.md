@@ -54,3 +54,13 @@ pip install --editable ./cfgcaddy
 3. ??????
 
 4. Profit
+
+
+## Motivation/Prior Art
+
+I'm an automation fiend, this tool grew out of a personal need to manage my configurations across multiple machines and operating systems. It fits my needs and I'll add features as I need them (Like Windows support). PRs are always welcome :)
+
+Here are several projects that I've drawn inspiration from:
+
+- https://github.com/charlesthomas/linker
+- https://github.com/thoughtbot/rcm
