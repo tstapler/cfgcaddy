@@ -3,13 +3,12 @@ import logging
 import os
 
 import click
+from whaaaaat import prompt
 
 import cfgcaddy
 import cfgcaddy.config
 import cfgcaddy.utils
 import linker
-
-from whaaaaat import prompt
 
 logger = logging.getLogger("cfgcaddy")
 logger.addHandler(logging.StreamHandler())

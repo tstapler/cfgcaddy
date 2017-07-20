@@ -1,10 +1,9 @@
 import logging
 import os
-from os import path
 import shutil
+from os import path
 
 from whaaaaat import prompt
-
 
 logger = logging.getLogger("cfgcaddy.utils")
 

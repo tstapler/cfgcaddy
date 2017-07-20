@@ -1,20 +1,18 @@
-from distutils import dir_util
 import distutils
 import logging
-from os import path
 import os
+import platform
 import shutil
-import sys
+from distutils import dir_util
+from os import path
 
 import pathspec
 
 import cfgcaddy
-from cfgcaddy.link import Link
 import cfgcaddy.utils as utils
+from cfgcaddy.link import Link
 
 logger = logging.getLogger("cfgcaddy.linker")
-
-INSTALL_PLATFORM = sys.platform
 
 
 def find_absences(src, dest, ignored_patterns=[]):
@@ -109,9 +107,8 @@ def link_folder(src, dest, force=False):
               path.exists(src)):
             try:
                 dir_util.mkpath(path.dirname(dest), verbose=1)
-            except (distutils.errors.DistutilsFileError, err):
-                logger.error("Failed to make dir of {}".format(dest),
-                             exc_info=True)
+            except distutils.errors.DistutilsFileError:
+                logger.error("Failed to make dir {}".format(dest))
                 return
             os.symlink(src, dest)
             logger.info("Symlinked {} to {}".format(src, dest))
@@ -135,10 +132,8 @@ def link_folder(src, dest, force=False):
         return False
 
     except OSError:
-        logger.error("Failed to link {} to {}".format(src,
-                     dest), exc_info=True)
+        logger.error("Failed to link {} to {}".format(src, dest))
         return True
-
 
 class Linker():
 

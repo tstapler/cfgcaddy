@@ -1,4 +1,3 @@
-from future.utils import viewitems
 import glob
 import logging
 import os
@@ -6,6 +5,7 @@ import sys
 from os import path
 
 import yaml
+from future.utils import viewitems
 
 import utils
 from link import Link

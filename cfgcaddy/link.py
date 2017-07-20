@@ -4,7 +4,6 @@ import os
 from cfgcaddy import LINK_MODE
 from cfgcaddy.utils import make_parent_dirs
 
-
 logger = logging.getLogger("cfgcaddy.link")
 
 
