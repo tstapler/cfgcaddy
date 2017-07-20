@@ -3,10 +3,12 @@ import distutils
 import logging
 from os import path
 import os
-import re
 import shutil
 import sys
 
+import pathspec
+
+import cfgcaddy
 from cfgcaddy.link import Link
 import cfgcaddy.utils as utils
 
@@ -15,7 +17,7 @@ logger = logging.getLogger("cfgcaddy.linker")
 INSTALL_PLATFORM = sys.platform
 
 
-def find_absences(src, dest, ignored_patterns="a^"):
+def find_absences(src, dest, ignored_patterns=[]):
     """ Walk the source directory and return a lists of files and dirs absent
         from the destination directory
 
@@ -29,6 +31,12 @@ def find_absences(src, dest, ignored_patterns="a^"):
     """
     absent_dirs = []
     absent_files = []
+
+    default_ignore = [cfgcaddy.DEFAULT_CONFIG_NAME]
+
+    ignored = pathspec.PathSpec.from_lines('gitwildmatch',
+                                           ignored_patterns + default_ignore)
+
     for root, dirs, files in os.walk(src, topdown=True):
         rel_path = path.relpath(root, src)
         if rel_path == ".":
@@ -36,9 +44,9 @@ def find_absences(src, dest, ignored_patterns="a^"):
 
         # Remove ignored directories from the walk
         dirs[:] = [dir_name for dir_name in dirs
-                   if not re.match(ignored_patterns, dir_name)]
+                   if not ignored.match_file(path.join(root, dir_name))]
         files[:] = [f for f in files
-                    if not re.match(ignored_patterns, f)]
+                    if not ignored.match_file(path.join(root, f))]
 
         # Create list of dirs that dont exist
         for dir_name in dirs:
@@ -81,8 +89,7 @@ def link_folder(src, dest, force=False):
                 absent_files, absent_dirs = find_absences(dest, src)
                 zip_file = shutil.make_archive(
                     path.join(src, "{}_backup".format(folder_name)),
-                                        "zip",
-                                        root_dir=dest)
+                    "zip", root_dir=dest)
                 logger.info("Backing up {} to {}".format(folder_name,
                                                          zip_file))
                 utils.create_dirs(absent_dirs)
@@ -113,8 +120,9 @@ def link_folder(src, dest, force=False):
         # Only the destination exists
         elif path.exists(dest) and not path.exists(src):
             if (force or
-                    utils.user_confirm("Delete, Move to {} and Link back to {}?"
-                                       .format(src, dest))):
+                utils.user_confirm("Delete, Move to {} and"
+                                   " Link back to {}?"
+                                   .format(src, dest))):
                 shutil.move(dest, src)
                 logger.info("Moving {} to {}".format(dest, src))
                 shutil.rmtree(dest)

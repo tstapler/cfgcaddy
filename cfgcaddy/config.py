@@ -119,14 +119,5 @@ class LinkerConfig():
     def ignore_patterns(self):
         lines = self.config["ignore"]
         """Parse the gitignore style file
-
-        Args:
-            file_path (string): The path to the target file
-
-        Returns:
-            string: Returns the regexes derived from the file
         """
-        if lines == []:
-            return "a^"
-        else:
-            return "(" + ")|(".join(lines) + ")"  # regex from list of regexes
+        return lines

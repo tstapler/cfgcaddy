@@ -19,9 +19,18 @@ def convert_link_format(line):
 
 class TestCustomLinker(FileLinkTestCase):
 
-    def check_custom_link(self, *lines):
+    def setup_linker(self, config):
         create_files_from_tree(self.source_tree, parent=self.source_dir)
         create_files_from_tree(self.dest_tree, parent=self.dest_dir)
+
+        with open(self.config_file_path, "w") as f:
+            yaml.dump(config, f)
+
+        cfg = LinkerConfig(config_file_path=self.config_file_path)
+
+        return Linker(cfg, prompt=False)
+
+    def check_custom_linker(self, *lines):
 
         config = {
             "preferences": {
@@ -30,17 +39,28 @@ class TestCustomLinker(FileLinkTestCase):
             },
             "links": [convert_link_format(line)
                       for line in lines],
-            "ignore": [".*ignore.*"]
+            "ignore": ["*ignore*"]
         }
 
-        with open(self.config_file_path, "w") as f:
-            yaml.dump(config, f)
-
-        cfg = LinkerConfig(config_file_path=self.config_file_path)
-
-        linker = Linker(cfg)
+        linker = self.setup_linker(config)
 
         linker.create_custom_links()
+
+        self.assertDestMatchesExpected()
+
+    def check_basic_linker(self, links=[], ignore=["*ignore*"]):
+        config = {
+            "preferences": {
+                "linker_src": self.source_dir,
+                "linker_dest": self.dest_dir
+            },
+            "links": links,
+            "ignore": ignore
+        }
+
+        linker = self.setup_linker(config)
+
+        linker.create_links()
 
         self.assertDestMatchesExpected()
 
@@ -61,7 +81,7 @@ class TestCustomLinker(FileLinkTestCase):
             }
         }
 
-        self.check_custom_link("sub/*:folder")
+        self.check_custom_linker("sub/*:folder")
 
     def test_basic_direct_copy(self):
         self.source_tree = {
@@ -72,7 +92,7 @@ class TestCustomLinker(FileLinkTestCase):
             "other": "",
         }
 
-        self.check_custom_link("other")
+        self.check_custom_linker("other")
 
     def test_basic_glob(self):
         """docstring for test_basic_glob"""
@@ -89,7 +109,7 @@ class TestCustomLinker(FileLinkTestCase):
             "last.test": "",
         }
 
-        self.check_custom_link("*.test")
+        self.check_custom_linker("*.test")
 
     def test_basic_glob_to_existing_folder(self):
         """docstring for test_basic_glob_to_folder"""
@@ -113,7 +133,7 @@ class TestCustomLinker(FileLinkTestCase):
             },
         }
 
-        self.check_custom_link("*.test:test_folder")
+        self.check_custom_linker("*.test:test_folder")
 
     def test_basic_glob_to_non_existing_folder(self):
         """docstring for test_basic_glob_to_folder"""
@@ -132,7 +152,7 @@ class TestCustomLinker(FileLinkTestCase):
             },
         }
 
-        self.check_custom_link("*.test:test_folder")
+        self.check_custom_linker("*.test:test_folder")
 
     def test_glob_folder_contents_to_folder(self):
         """docstring for test_basic_glob_to_folder"""
@@ -160,7 +180,7 @@ class TestCustomLinker(FileLinkTestCase):
             },
         }
 
-        self.check_custom_link("somefolder/*.test:test_folder")
+        self.check_custom_linker("somefolder/*.test:test_folder")
 
     def test_rename_file(self):
         self.source_tree = {
@@ -171,7 +191,7 @@ class TestCustomLinker(FileLinkTestCase):
             "different.test": "",
         }
 
-        self.check_custom_link("last.test:different.test")
+        self.check_custom_linker("last.test:different.test")
 
     def test_deep_copy(self):
         self.source_tree = {
@@ -186,7 +206,7 @@ class TestCustomLinker(FileLinkTestCase):
             }
         }
 
-        self.check_custom_link(".mixxx/controllers")
+        self.check_custom_linker(".mixxx/controllers")
 
     def test_nested_glob(self):
         self.source_tree = {
@@ -198,7 +218,7 @@ class TestCustomLinker(FileLinkTestCase):
                 }
             },
             "stapler-scripts": {
-                    "script4": "",
+                "script4": "",
                     "script5": "",
                     "script6": "",
             }
@@ -217,5 +237,60 @@ class TestCustomLinker(FileLinkTestCase):
             }
         }
 
-        self.check_custom_link("bin/scripts/*:bin/scripts",
-                               "stapler-scripts/*:bin/scripts")
+        self.check_custom_linker("bin/scripts/*:bin/scripts",
+                                 "stapler-scripts/*:bin/scripts")
+
+    def test_basic_linker(self):
+        self.source_tree = {
+            "test1": "",
+            "test2": "",
+            "test3": "",
+            "test4": "",
+            "test5": "",
+            "test6": "",
+            "ignore.file": ""
+        }
+
+        self.expected_tree = {
+            "test1": "",
+            "test2": "",
+            "test3": "",
+            "test4": "",
+            "test5": "",
+            "test6": "",
+        }
+
+        self.check_basic_linker()
+
+    def test_subdirectory_ignore(self):
+        self.source_tree = {
+            ".git": {
+                "test1": "",
+                "test2": "",
+                "test3": "",
+                "test4": "",
+
+            },
+            "top": {
+                "sub1": "",
+                "sub2": "",
+                "sub3": "",
+                ".git": {
+                    "test1": "",
+                    "test2": "",
+                    "test3": "",
+                    "test4": "",
+                }
+            }
+        }
+
+        self.expected_tree = {
+            "top":
+                {
+                    "sub1": "",
+                    "sub2": "",
+                    "sub3": "",
+                }
+        }
+
+        self.check_basic_linker(ignore=[".git"])
