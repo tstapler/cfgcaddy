@@ -293,4 +293,4 @@ class TestCustomLinker(FileLinkTestCase):
                 }
         }
 
-        self.check_basic_linker(ignore=[".git"])
+        self.check_basic_linker()
