@@ -1,10 +1,8 @@
-from ruamel.yaml import YAML
+import yaml
 
 from cfgcaddy.config import LinkerConfig
 from cfgcaddy.linker import Linker
 from cfgcaddy.tests import FileLinkTestCase, create_files_from_tree
-
-yaml = YAML()
 
 
 def convert_link_format(line):

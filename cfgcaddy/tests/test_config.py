@@ -1,12 +1,9 @@
 import os
 
-from ruamel.yaml import YAML
+import yaml
 
 from cfgcaddy.config import LinkerConfig
 from cfgcaddy.tests import FileLinkTestCase
-
-
-yaml = YAML()
 
 
 class TestLinkerConfig(FileLinkTestCase):

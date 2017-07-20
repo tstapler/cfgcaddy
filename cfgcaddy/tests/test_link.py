@@ -1,12 +1,7 @@
 from os import path
 
-from ruamel.yaml import YAML
-
 from cfgcaddy.link import Link
 from cfgcaddy.tests import FileLinkTestCase, create_files_from_tree
-
-
-yaml = YAML()
 
 
 class TestLink(FileLinkTestCase):

@@ -4,8 +4,7 @@ import os
 import sys
 from os import path
 
-from ruamel.yaml import YAML
-from _ordereddict import ordereddict
+import yaml
 
 import utils
 from link import Link
@@ -14,9 +13,6 @@ logger = logging.getLogger("cfgcaddy.config")
 
 MISSING_FILE_MESSAGE = "Please create a {} file in the same" \
     " directory as the linker python file."
-
-
-yaml = YAML()
 
 
 class LinkerConfig():
@@ -29,7 +25,7 @@ class LinkerConfig():
         self.config_file_path = config_file_path
 
         if default_config:
-            self.config = ordereddict(default_config, relax=True)
+            self.config = default_config
         elif self.config_file_path:
             self.read_config()
 
