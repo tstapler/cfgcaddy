@@ -14,7 +14,10 @@ def convert_link_format(line):
     if len(output) == 1:
         return line
     else:
-        return {output[0]: output[1:]}
+        return {
+            "src": output[0],
+            "dest": output[1:]
+        }
 
 
 class TestCustomLinker(FileLinkTestCase):
@@ -219,8 +222,8 @@ class TestCustomLinker(FileLinkTestCase):
             },
             "stapler-scripts": {
                 "script4": "",
-                    "script5": "",
-                    "script6": "",
+                "script5": "",
+                "script6": "",
             }
         }
 

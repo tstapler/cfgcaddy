@@ -1,3 +1,4 @@
+from future.utils import viewitems
 import glob
 import logging
 import os
@@ -77,26 +78,27 @@ class LinkerConfig():
         # import ipdb
         # ipdb.sset_trace()
         for link in links:
-            link_src = link[0]
-            link_dests = link[1]
-            src_files = glob.glob(path.join(self.linker_src, link_src))
-            # To account for no destination
-            if not link_dests:
-                if len(src_files) > 1:
-                    link_dests = [path.dirname(link_src)]
-                else:
-                    link_dests = [link_src]
-            for src_path in src_files:
-                for dest in link_dests:
+            try:
+                link_src = link["src"]
+                link_dests = link["dest"]
+                src_files = glob.glob(path.join(self.linker_src, link_src))
+                # To account for no destination
+                if not link_dests:
                     if len(src_files) > 1:
-                        src_name = path.join(dest, path.basename(src_path))
+                        link_dests = [path.dirname(link_src)]
                     else:
-                        src_name = dest
-                        # src_name = path.relpath(src_path, self.linker_src)
-
-                    dest_path = path.join(self.linker_dest,
-                                          src_name)
-                    custom_links.append(Link(src_path, dest_path))
+                        link_dests = [link_src]
+                for src_path in src_files:
+                    for dest in link_dests:
+                        if len(src_files) > 1:
+                            src_name = path.join(dest, path.basename(src_path))
+                        else:
+                            src_name = dest
+                        dest_path = path.join(self.linker_dest,
+                                              src_name)
+                        custom_links.append(Link(src_path, dest_path))
+            except KeyError:
+                logger.exception("Bad custom link")
 
         logger.debug("Custom Links => {}".format(custom_links))
         self.links = custom_links
@@ -107,11 +109,10 @@ class LinkerConfig():
         links = []
         for link in self.config.get("links"):
             if type(link) is str:
-                link = (link, [])
-            else:
-                link = link.items()[0]
-                if type(link[1]) is str:
-                    link = (link[0], [link[1]])
+                link = {
+                    "src": link, 
+                    "dest": []
+                }
             links.append(link)
         return links
 
