@@ -1,7 +1,6 @@
 import distutils
 import logging
 import os
-import platform
 import shutil
 from distutils import dir_util
 from os import path

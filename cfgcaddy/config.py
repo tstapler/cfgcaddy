@@ -1,14 +1,14 @@
 import glob
 import logging
 import os
+import platform
 import sys
 from os import path
 
 import yaml
-from future.utils import viewitems
 
-import utils
-from link import Link
+from cfgcaddy import utils
+from cfgcaddy.link import Link
 
 logger = logging.getLogger("cfgcaddy.config")
 
@@ -79,6 +79,9 @@ class LinkerConfig():
         # ipdb.sset_trace()
         for link in links:
             try:
+                if link.get("os") and link.get("os") != platform.system():
+                    continue
+
                 link_src = link["src"]
                 link_dests = link["dest"]
                 src_files = glob.glob(path.join(self.linker_src, link_src))
@@ -96,7 +99,8 @@ class LinkerConfig():
                             src_name = dest
                         dest_path = path.join(self.linker_dest,
                                               src_name)
-                        custom_links.append(Link(src_path, dest_path))
+                        custom_links.append(Link(utils.expand_path(src_path), 
+                                                 utils.expand_path(dest_path)))
             except KeyError:
                 logger.exception("Bad custom link")
 
@@ -110,7 +114,7 @@ class LinkerConfig():
         for link in self.config.get("links"):
             if type(link) is str:
                 link = {
-                    "src": link, 
+                    "src": link,
                     "dest": []
                 }
             links.append(link)
