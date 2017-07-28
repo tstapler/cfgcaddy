@@ -83,7 +83,7 @@ class LinkerConfig():
                     continue
 
                 link_src = link["src"]
-                link_dests = link["dest"]
+                link_dests = link.get("dest")
                 src_files = glob.glob(path.join(self.linker_src, link_src))
                 # To account for no destination
                 if not link_dests:
@@ -119,6 +119,8 @@ class LinkerConfig():
                     "src": link,
                     "dest": []
                 }
+            if type(link.get("dest")) is str:
+                link["dest"] = [link["dest"]]
             links.append(link)
         return links
 

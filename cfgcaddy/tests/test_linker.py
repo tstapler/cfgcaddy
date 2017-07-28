@@ -35,17 +35,18 @@ class TestCustomLinker(FileLinkTestCase):
 
         return Linker(cfg, prompt=False)
 
-    def check_custom_linker(self, *lines):
+    def check_custom_linker(self, *lines, config=None):
 
-        config = {
-            "preferences": {
-                "linker_src": self.source_dir,
-                "linker_dest": self.dest_dir
-            },
-            "links": [convert_link_format(line)
-                      for line in lines],
-            "ignore": ["*ignore*"]
-        }
+        if config is None:
+            config = {
+                "preferences": {
+                    "linker_src": self.source_dir,
+                    "linker_dest": self.dest_dir
+                },
+                "links": [convert_link_format(line)
+                          for line in lines],
+                "ignore": ["*ignore*"]
+            }
 
         linker = self.setup_linker(config)
 
@@ -53,15 +54,16 @@ class TestCustomLinker(FileLinkTestCase):
 
         self.assertDestMatchesExpected()
 
-    def check_basic_linker(self, links=[], ignore=["*ignore*"]):
-        config = {
-            "preferences": {
-                "linker_src": self.source_dir,
-                "linker_dest": self.dest_dir
-            },
-            "links": links,
-            "ignore": ignore
-        }
+    def check_basic_linker(self, links=[], ignore=["*ignore*"], config=None):
+        if config is None:
+            config = {
+                "preferences": {
+                    "linker_src": self.source_dir,
+                    "linker_dest": self.dest_dir
+                },
+                "links": links,
+                "ignore": ignore
+            }
 
         linker = self.setup_linker(config)
 
@@ -241,9 +243,39 @@ class TestCustomLinker(FileLinkTestCase):
                 }
             }
         }
+        config = {
+            "preferences": {
+                "linker_src": self.source_dir,
+                "linker_dest": self.dest_dir
+            },
+            # The test harness doesnt check what happens if the dest is a string
+            # we do this here to cover that case
+            "links": [{"src": "bin/scripts/*", "dest": "bin/scripts"},
+                      {"src": "stapler-scripts/*", "dest": "bin/scripts"}],
+            "ignore": ["*ignore*"]
+        }
 
-        self.check_custom_linker("bin/scripts/*:bin/scripts",
-                                 "stapler-scripts/*:bin/scripts")
+        self.check_custom_linker(config=config)
+
+    def test_no_dest(self):
+        self.source_tree = {
+            "script1":""
+        }
+
+        self.expected_tree = {
+            "script1": "",
+        }
+        config = {
+            "preferences": {
+                "linker_src": self.source_dir,
+                "linker_dest": self.dest_dir
+            },
+            "links": [{"src": "script1"}],
+            "ignore": ["*ignore*"]
+        }
+
+        self.check_custom_linker(config=config)
+
 
     def test_basic_linker(self):
         self.source_tree = {
