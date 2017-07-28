@@ -82,7 +82,7 @@ class LinkerConfig():
                 if link.get("os") and link.get("os") != platform.system():
                     continue
 
-                link_src = link["src"]
+                link_src = utils.expand_path(link["src"])
                 link_dests = link.get("dest")
                 src_files = glob.glob(path.join(self.linker_src, link_src))
                 # To account for no destination
@@ -92,13 +92,16 @@ class LinkerConfig():
                     else:
                         link_dests = [link_src]
                 for src_path in src_files:
-                    for dest in link_dests:
+                    for dest in map(utils.expand_path, link_dests):
                         if len(src_files) > 1:
                             src_name = path.join(dest, path.basename(src_path))
                         else:
                             src_name = dest
-                        dest_path = path.join(self.linker_dest,
-                                              src_name)
+                        if path.isabs(dest):
+                            dest_path = src_name
+                        else:
+                            dest_path = path.join(self.linker_dest,
+                                                  src_name)
                         custom_links.append(Link(utils.expand_path(src_path), 
                                                  utils.expand_path(dest_path)))
             except KeyError:
@@ -111,9 +114,7 @@ class LinkerConfig():
     def links_yaml(self):
         """Parse the YAML config representation into a consistent format"""
         links = []
-        logger.error(self.config.get("links"))
         for link in self.config.get("links"):
-            logger.error(link)
             if type(link) is str:
                 link = {
                     "src": link,

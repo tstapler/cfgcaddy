@@ -332,7 +332,7 @@ class TestCustomLinker(FileLinkTestCase):
 
         self.check_basic_linker()
 
-    def test_env_expand(self):
+    def test_expand_absolute_path(self):
         self.source_tree = {
             "first": ""
         }
@@ -345,13 +345,23 @@ class TestCustomLinker(FileLinkTestCase):
             }
         }
 
-        dest = "da/real/location"
+
+        dest = os.path.join(self.dest_dir, "da","real","location")
 
         os.environ["FILE_DEST"] = dest
 
-        env_var = "$FILE_DEST"
+        dest_var = "$FILE_DEST"
 
         if platform.system() == "Windows":
-            env_var = "%FILE_DEST%"
+            dest_var = "%FILE_DEST%"
 
-        self.check_custom_linker("first:{}".format(env_var))
+        src = os.path.join(self.source_dir, "first")
+
+        os.environ["FILE_SRC"] = src
+
+        src_var = "$FILE_SRC"
+
+        if platform.system() == "Windows":
+            src_var = "%FILE_SRC%"
+
+        self.check_custom_linker("{}:{}".format(src_var, dest_var))
