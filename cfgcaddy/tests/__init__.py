@@ -47,7 +47,7 @@ def handle_links(function, path, execinfo):
 
 
 def create_files_from_tree(tree, parent=''):
-    for name, content in tree.iteritems():
+    for name, content in tree.items():
         name = os.path.join(parent, name)
         if type(content) is dict:
             os.makedirs(name)
@@ -80,7 +80,7 @@ class FileLinkTestCase(unittest.TestCase):
     def recursive_dircmp(self, dircmp_obj):
         self.assertListEqual(dircmp_obj.left_only, [])
         self.assertListEqual(dircmp_obj.right_only, [])
-        for dir_name, dir in dircmp_obj.subdirs.iteritems():
+        for dir_name, dir in dircmp_obj.subdirs.items():
             self.recursive_dircmp(dir)
 
     def assertDestMatchesExpected(self):

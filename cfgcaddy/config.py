@@ -111,7 +111,9 @@ class LinkerConfig():
     def links_yaml(self):
         """Parse the YAML config representation into a consistent format"""
         links = []
+        logger.error(self.config.get("links"))
         for link in self.config.get("links"):
+            logger.error(link)
             if type(link) is str:
                 link = {
                     "src": link,

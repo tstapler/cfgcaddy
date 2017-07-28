@@ -1,6 +1,9 @@
 #!/usr/bin/env python
+import ctypes
 import logging
 import os
+import platform
+import sys
 
 import click
 from whaaaaat import prompt
@@ -8,7 +11,7 @@ from whaaaaat import prompt
 import cfgcaddy
 import cfgcaddy.config
 import cfgcaddy.utils
-import linker
+import cfgcaddy.linker
 
 logger = logging.getLogger("cfgcaddy")
 logger.addHandler(logging.StreamHandler())
@@ -70,7 +73,7 @@ def link(config):
     else:
         linker_config = cfgcaddy.config.LinkerConfig(config_file_path=config)
 
-    caddy = linker.Linker(linker_config)
+    caddy = cfgcaddy.linker.Linker(linker_config)
     caddy.create_links()
     caddy.create_custom_links()
 
@@ -106,11 +109,22 @@ def init(src_directory, dest_directory, config):
 
 def symlink_config(kind, src, dest):
     try:
-        logger.info("Symlinking {} cfgcaddy config".format(kind))
         os.symlink(src, dest)
+        logger.info("Symlinking {} cfgcaddy config".format(kind))
     except OSError:
         logger.error("Symlinking {} cfgcaddy config failed".format(kind))
+        if platform.system() == "Windows":
+            logger.error("Ensure that cfgcaddy is being run as an Administrator.\n"
+                         "By default, only administrators can create Symlinks on Windows.")
 
+def is_admin():
+    try:
+        return ctypes.windll.shell32.IsUserAnAdmin()
+    except:
+        return False
 
 if __name__ == '__main__':
+    if platform.system() == "Windows" and not is_admin():
+        ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, "", None, 1)
     main(prog_name="cfgcaddy")
+
