@@ -41,15 +41,22 @@ config_questions = {
         # TODO: Add additional preferences like what to do on a conflict
         # or the ability to use a basic ignore (.git, only .*, etc)
     ],
+}
+
+default_config =  {
     "links": [],
     "ignore": []
 }
 
 
-def create_config(config_path, new_config={}):
+def create_config(config_path, new_config=None):
+    if not new_config:
+        new_config = default_config
+        
     for section, questions in config_questions.items():
         if not new_config.get(section):
             new_config[section] = prompt(questions)
+
     config = cfgcaddy.config.LinkerConfig(config_file_path=config_path,
                                           default_config=new_config)
     config.write_config()
@@ -69,7 +76,8 @@ def main():
 def link(config):
     """Link your config files"""
     if not os.path.isfile(config):
-        linker_config = create_config(config)
+        logger.error("Cannot find cfgcaddy.yml, please specify path to config using '-c' option or create/link a new config using the 'cfgcaddy init' command.")
+        return
     else:
         linker_config = cfgcaddy.config.LinkerConfig(config_file_path=config)
 
@@ -98,13 +106,13 @@ def init(src_directory, dest_directory, config):
         symlink_config(
             "existing", src_config_path, cfgcaddy.DEFAULT_CONFIG_PATH)
     else:
-        create_config(
-            cfgcaddy.DEFAULT_CONFIG_PATH, {
+        default_config.update({
                 "preferences": {
                     "linker_src": src_directory,
                     "linker_dest": dest_directory
                 }
             })
+        create_config(cfgcaddy.DEFAULT_CONFIG_PATH, default_config)
 
 
 def symlink_config(kind, src, dest):
