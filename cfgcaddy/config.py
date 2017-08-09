@@ -130,4 +130,5 @@ class LinkerConfig():
         lines = self.config["ignore"]
         """Parse the gitignore style file
         """
+        logger.debug("Ignore Patterns: {}".format(lines))
         return lines

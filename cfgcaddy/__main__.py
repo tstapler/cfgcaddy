@@ -50,12 +50,16 @@ default_config =  {
 
 
 def create_config(config_path, new_config=None):
+    logger.debug("default_config: {}".format(new_config))
+
     if not new_config:
         new_config = default_config
         
     for section, questions in config_questions.items():
         if not new_config.get(section):
             new_config[section] = prompt(questions)
+
+    logger.debug("Creating Config => {}".format(new_config))
 
     config = cfgcaddy.config.LinkerConfig(config_file_path=config_path,
                                           default_config=new_config)
@@ -64,9 +68,13 @@ def create_config(config_path, new_config=None):
 
 
 @click.group()
-def main():
+@click.option('-d', '--debug',
+              is_flag=True,
+              help="Enable Debugging output")
+def main(debug):
     """A tool for managing your configuration files"""
-    pass
+    if debug:
+        logger.setLevel(logging.DEBUG)
 
 
 @main.command()
