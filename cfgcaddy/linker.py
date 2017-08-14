@@ -29,7 +29,7 @@ def find_absences(src, dest, ignored_patterns=[]):
     absent_dirs = []
     absent_files = []
 
-    default_ignore = [cfgcaddy.DEFAULT_CONFIG_NAME, ".git"]
+    default_ignore = [cfgcaddy.DEFAULT_CONFIG_NAME, ".git", "!.*"]
 
     ignored = pathspec.PathSpec.from_lines('gitwildmatch',
                                            ignored_patterns + default_ignore)
