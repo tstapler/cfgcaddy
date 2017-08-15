@@ -1,3 +1,4 @@
+import logging
 import os
 import platform
 import yaml
@@ -6,6 +7,7 @@ from cfgcaddy.config import LinkerConfig
 from cfgcaddy.linker import Linker
 from cfgcaddy.tests import FileLinkTestCase, create_files_from_tree
 
+logger = logging.getLogger("cfgcaddy.test.linker")
 
 def convert_link_format(line):
     """Convert from the old linker format to the new format
@@ -35,7 +37,7 @@ class TestCustomLinker(FileLinkTestCase):
 
         return Linker(cfg, prompt=False)
 
-    def check_custom_linker(self, *lines, config=None):
+    def check_custom_linker(self, lines, config=None):
 
         if config is None:
             config = {
@@ -88,7 +90,7 @@ class TestCustomLinker(FileLinkTestCase):
             }
         }
 
-        self.check_custom_linker("sub/*:folder")
+        self.check_custom_linker(["sub/*:folder"])
 
     def test_basic_direct_copy(self):
         self.source_tree = {
@@ -99,7 +101,7 @@ class TestCustomLinker(FileLinkTestCase):
             "other": "",
         }
 
-        self.check_custom_linker("other")
+        self.check_custom_linker(["other"])
 
     def test_basic_glob(self):
         """docstring for test_basic_glob"""
@@ -116,7 +118,7 @@ class TestCustomLinker(FileLinkTestCase):
             "last.test": "",
         }
 
-        self.check_custom_linker("*.test")
+        self.check_custom_linker(["*.test"])
 
     def test_basic_glob_to_existing_folder(self):
         """docstring for test_basic_glob_to_folder"""
@@ -140,7 +142,7 @@ class TestCustomLinker(FileLinkTestCase):
             },
         }
 
-        self.check_custom_linker("*.test:test_folder")
+        self.check_custom_linker(["*.test:test_folder"])
 
     def test_basic_glob_to_non_existing_folder(self):
         """docstring for test_basic_glob_to_folder"""
@@ -159,7 +161,7 @@ class TestCustomLinker(FileLinkTestCase):
             },
         }
 
-        self.check_custom_linker("*.test:test_folder")
+        self.check_custom_linker(["*.test:test_folder"])
 
     def test_glob_folder_contents_to_folder(self):
         """docstring for test_basic_glob_to_folder"""
@@ -187,7 +189,7 @@ class TestCustomLinker(FileLinkTestCase):
             },
         }
 
-        self.check_custom_linker("somefolder/*.test:test_folder")
+        self.check_custom_linker(["somefolder/*.test:test_folder"])
 
     def test_rename_file(self):
         self.source_tree = {
@@ -198,7 +200,7 @@ class TestCustomLinker(FileLinkTestCase):
             "different.test": "",
         }
 
-        self.check_custom_linker("last.test:different.test")
+        self.check_custom_linker(["last.test:different.test"])
 
     def test_deep_copy(self):
         self.source_tree = {
@@ -213,7 +215,7 @@ class TestCustomLinker(FileLinkTestCase):
             }
         }
 
-        self.check_custom_linker(".mixxx/controllers")
+        self.check_custom_linker([".mixxx/controllers"])
 
     def test_nested_glob(self):
         self.source_tree = {
@@ -255,7 +257,7 @@ class TestCustomLinker(FileLinkTestCase):
             "ignore": ["*ignore*"]
         }
 
-        self.check_custom_linker(config=config)
+        self.check_custom_linker([], config=config)
 
     def test_no_dest(self):
         self.source_tree = {
@@ -274,7 +276,7 @@ class TestCustomLinker(FileLinkTestCase):
             "ignore": ["*ignore*"]
         }
 
-        self.check_custom_linker(config=config)
+        self.check_custom_linker([], config=config)
 
 
     def test_basic_linker(self):
@@ -364,4 +366,34 @@ class TestCustomLinker(FileLinkTestCase):
         if platform.system() == "Windows":
             src_var = "%FILE_SRC%"
 
-        self.check_custom_linker("{}:{}".format(src_var, dest_var))
+        logger.debug("{}:{}".format(os.environ["FILE_SRC"], os.environ["FILE_DEST"]))
+        logger.debug("{}:{}".format(src_var, dest_var))
+
+        self.check_custom_linker(["{}:{}".format(src_var, dest_var)])
+
+    def test_hidden_file(self):
+        self.source_tree = {
+            ".vimrc": "",
+        }
+
+        self.expected_tree = {
+            ".vimrc": "",
+        }
+
+        self.check_basic_linker()
+
+    def test_hidden_folder(self):
+    
+        self.source_tree = {
+            ".vim": {
+                "stuff": ""
+            }
+        }
+
+        self.expected_tree = {
+            ".vim": {
+                "stuff": ""
+            }
+        }
+
+        self.check_basic_linker()

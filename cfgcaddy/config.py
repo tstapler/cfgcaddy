@@ -75,16 +75,17 @@ class LinkerConfig():
 
     def generate_links(self, links):
         custom_links = []
-        # import ipdb
-        # ipdb.sset_trace()
+
         for link in links:
             try:
-                if link.get("os") and link.get("os") != platform.system():
+                if link.get("os") and platform.system() not in link.get("os"):
+                    logger.debug("OS: {}".format(link.get("os")))
                     continue
 
                 link_src = utils.expand_path(link["src"])
                 link_dests = link.get("dest")
                 src_files = glob.glob(path.join(self.linker_src, link_src))
+
                 # To account for no destination
                 if not link_dests:
                     if len(src_files) > 1:
@@ -123,6 +124,8 @@ class LinkerConfig():
             if type(link.get("dest")) is str:
                 link["dest"] = [link["dest"]]
             links.append(link)
+	logger.debug("Links before formatting: {}".format(self.config.get("links")))
+	logger.debug("Links after formatting: {}".format(links))
         return links
 
     @property
