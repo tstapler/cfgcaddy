@@ -124,8 +124,8 @@ class LinkerConfig():
             if type(link.get("dest")) is str:
                 link["dest"] = [link["dest"]]
             links.append(link)
-	logger.debug("Links before formatting: {}".format(self.config.get("links")))
-	logger.debug("Links after formatting: {}".format(links))
+        logger.debug("Links before formatting: {}".format(self.config.get("links")))
+        logger.debug("Links after formatting: {}".format(links))
         return links
 
     @property
