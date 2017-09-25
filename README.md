@@ -1,5 +1,7 @@
 # Config Caddy
 
+![Travis CI](https://travis-ci.org/tstapler/cfgcaddy.svg?branch=master)
+
 A tool to manage your configuration files.
 
 
