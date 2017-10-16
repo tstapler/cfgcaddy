@@ -119,6 +119,18 @@ pip install --editable ./cfgcaddy
 
 4. Profit
 
+### Integration Tests
+
+To test the project from a users standpoint we use [Aruba](https://github.com/cucumber/aruba). Aruba is build on top of Cucumber, a library for creating user readable acceptance tests.
+
+To run our acceptance tests use:
+```shell
+
+make watch-acceptance
+
+```
+
+The command will build a docker container, then run the acceptance test suite whenever files change
 
 ## Motivation/Prior Art
 

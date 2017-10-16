@@ -90,3 +90,6 @@ ENV/
 
 # CS files
 .cs_*
+
+# Ruby Dev files
+.byebug_history

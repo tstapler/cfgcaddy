@@ -115,7 +115,7 @@ class LinkerConfig():
     def links_yaml(self):
         """Parse the YAML config representation into a consistent format"""
         links = []
-        for link in self.config.get("links"):
+        for link in self.config.get("links", []):
             if type(link) is str:
                 link = {
                     "src": link,
@@ -130,7 +130,7 @@ class LinkerConfig():
 
     @property
     def ignore_patterns(self):
-        lines = self.config["ignore"]
+        lines = self.config.get("ignore", [])
         """Parse the gitignore style file
         """
         logger.debug("Ignore Patterns: {}".format(lines))
