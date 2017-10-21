@@ -1,6 +1,8 @@
 # Config Caddy
 
 ![Travis CI](https://travis-ci.org/tstapler/cfgcaddy.svg?branch=master)
+[![PyPI version](https://badge.fury.io/py/cfgcaddy.svg)](https://badge.fury.io/py/cfgcaddy)
+
 
 A tool to manage your configuration files.
 
@@ -37,65 +39,11 @@ cfgcaddy link
 
 ## Configuration File Format
 
+`cfgcaddy` uses a configuration file to store important information about your configuration. The `.cfgcaddy.yml` consists of several parts. A *preferences* section which contains information like where your dotfiles are located and where you want them linked to, A *links* section where you can specify more complex symlinks, and an `ignore` section where you specify files you do not want managed by `cfgcaddy`.
+
 Config files for cfgcaddy are stored in your home directory by default. `$HOME/.cfgcaddy.yml`
 
-```yaml
-
-preferences:
-  linker_src: $HOME/dotfiles # Where your dotfiles are stored
-  linker_dest: $HOME # Where to link dotfiles to
-links:
-  - src: .vimsnippets # You can link to multiple destinations
-    dest:
-      - .vimsnippets
-      - .vim/bundle/.dein/stapler-snips
-# Links the folder $HOME/dotfiles/.mixxx/controllers 
-# to $HOME/.mixxx/controllers
-  - src: .mixxx/controllers 
-# Links all the files within $HOME/dotfiles/bin/scripts to
-# a folder called $HOME/bin/scripts. This method can be used 
-# to merge files from multiple folders
-  - src: bin/scripts/*
-    dest: bin/scripts
-# Run only on the given os as defined by:
-# https://docs.python.org/2/library/platform.html#platform.system
-    os: "Linux Darwin"
-  - src: .vimrc
-    dest: .config/nvim/init.vim
-    os: "Linux Darwin"
-  - src: stapler-scripts/*
-    dest: bin/scripts
-    os: "Linux Darwin"
-  - src: stapler-scripts/PowerShell
-# You can use environment variables in the paths
-# back slashes need to be escaped per yaml rules
-    dest: "%userprofile%\\My Documents\\WindowsPowerShell\\"
-    os: "Windows"
-  - src: .vimrc
-    dest: "%userprofile%\\AppData\\Local\\nvim\\init.vim"
-    os: "Windows"
-    # Symlinks for git are broken on windows
-  - src: .gittemplates
-    os: "Linux Darwin"
-  - src: .vim/spell
-  - src: .shell
-    os: "Linux Darwin"
-  - src: .tmux/*
-
-ignore:
-  # Globbing patterns to ignore when
-  # linking config files to home dir
-  - "*stapler*"
-  - "cfgcaddy"
-  - "*.git"
-  - "*.swp"
-  - "*.yml"
-  - "*.zip"
-  - "tags"
-  - "nerd-fonts"
-  - ".gittemplates"
-
-```
+A sample `.cfgcaddy.yml` which leverages most features can be found [here](https://github.com/tstapler/dotfiles/blob/master/.cfgcaddy.yml)
 
 ## Development
 
