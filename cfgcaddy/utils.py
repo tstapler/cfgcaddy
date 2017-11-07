@@ -65,8 +65,10 @@ def create_links(links=None):
                 make_parent_dirs(link.dest)
                 os.symlink(link.src, link.dest)
             except (OSError) as err:
-                logger.error("Can't make link from {} to {} because {}"
-                             .format(link.src, link.dest, err.strerror))
+                if err.message == 'File exists' and not os.path.islink(
+                        link.dest):
+                    logger.error("Can't make link from {} to {} because {}"
+                                 .format(link.src, link.dest, err.strerror))
 
 
 def move_files(transactions=None):
