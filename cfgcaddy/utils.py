@@ -65,7 +65,8 @@ def create_links(links=None):
                 make_parent_dirs(link.dest)
                 os.symlink(link.src, link.dest)
             except (OSError) as err:
-                if err.message == 'File exists' and not os.path.islink(
+                # If the file exists and isn't a link
+                if err.errno == 17 and not os.path.islink(
                         link.dest):
                     logger.error("Can't make link from {} to {} because {}"
                                  .format(link.src, link.dest, err.strerror))
