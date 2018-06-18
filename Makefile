@@ -26,6 +26,9 @@ DOCKER_RULES=test format run build-dist upload-dist watch-acceptance
 $(DOCKER_RULES):
 	$(RUN_LOCAL_COMMAND_IN_DOCKER)
 
+local-format:
+	yapf --recursive --in-place .
+
 # Add local rules which are run in the docker container
 local-test:
 	nosetests
