@@ -62,10 +62,13 @@ def create_config(config_path, new_config=None):
 
 @click.group()
 @click.option('-d', '--debug', is_flag=True, help="Enable Debugging output")
-def main(debug):
+@click.option('-q', '--quiet', is_flag=True, help="Silence cfgcaddy")
+def main(debug, quiet):
     """A tool for managing your configuration files"""
     if debug:
         logger.setLevel(logging.DEBUG)
+    if quiet:
+        logger.setLevel(logging.ERROR)
 
 
 @main.command()
