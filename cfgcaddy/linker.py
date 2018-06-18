@@ -40,10 +40,13 @@ def find_absences(src, dest, ignored_patterns=[]):
             rel_path = ""
 
         # Remove ignored directories from the walk
-        dirs[:] = [dir_name for dir_name in dirs
-                   if not ignored.match_file(path.join(root, dir_name))]
-        files[:] = [f for f in files
-                    if not ignored.match_file(path.join(root, f))]
+        dirs[:] = [
+            dir_name for dir_name in dirs
+            if not ignored.match_file(path.join(root, dir_name))
+        ]
+        files[:] = [
+            f for f in files if not ignored.match_file(path.join(root, f))
+        ]
 
         # Create list of dirs that dont exist
         for dir_name in dirs:
@@ -60,8 +63,7 @@ def find_absences(src, dest, ignored_patterns=[]):
                 if path.islink(pathname):
                     os.unlink(pathname)  # Fix Broken Links
                 # Add the source and destination for the symlink
-                absent_files.append(Link(path.join(root, f),
-                                    pathname))
+                absent_files.append(Link(path.join(root, f), pathname))
 
     return absent_files, absent_dirs
 
@@ -86,9 +88,10 @@ def link_folder(src, dest, force=False):
                 absent_files, absent_dirs = find_absences(dest, src)
                 zip_file = shutil.make_archive(
                     path.join(src, "{}_backup".format(folder_name)),
-                    "zip", root_dir=dest)
-                logger.info("Backing up {} to {}".format(folder_name,
-                                                         zip_file))
+                    "zip",
+                    root_dir=dest)
+                logger.info(
+                    "Backing up {} to {}".format(folder_name, zip_file))
                 utils.create_dirs(absent_dirs)
                 logger.info("Created {}".format(absent_dirs))
                 utils.move_files(absent_files)
@@ -96,14 +99,12 @@ def link_folder(src, dest, force=False):
                 shutil.rmtree(dest)
                 logger.info("Removed {}".format(dest))
                 os.symlink(src, dest)
-                logger.info("Symlinked {} to {}".format(src,
-                                                        dest))
+                logger.info("Symlinked {} to {}".format(src, dest))
                 return True
 
         # Only the source exists
-        elif (not path.exists(dest) and
-              not path.islink(dest) and
-              path.exists(src)):
+        elif (not path.exists(dest) and not path.islink(dest)
+              and path.exists(src)):
             try:
                 dir_util.mkpath(path.dirname(dest), verbose=1)
             except distutils.errors.DistutilsFileError:
@@ -115,10 +116,9 @@ def link_folder(src, dest, force=False):
 
         # Only the destination exists
         elif path.exists(dest) and not path.exists(src):
-            if (force or
-                utils.user_confirm("Delete, Move to {} and"
-                                   " Link back to {}?"
-                                   .format(src, dest))):
+            if (force or utils.user_confirm("Delete, Move to {} and"
+                                            " Link back to {}?".format(
+                                                src, dest))):
                 shutil.move(dest, src)
                 logger.info("Moving {} to {}".format(dest, src))
                 shutil.rmtree(dest)
@@ -134,13 +134,12 @@ def link_folder(src, dest, force=False):
         logger.error("Failed to link {} to {}".format(src, dest))
         return True
 
-class Linker():
 
+class Linker():
     """Tyler Stapler's Config Linker
     """
 
-    def __init__(self, linker_config,
-                 prompt=True):
+    def __init__(self, linker_config, prompt=True):
 
         if not linker_config:
             raise Exception("Linker requires Config!")
@@ -169,8 +168,8 @@ class Linker():
 
         logger.info("Preparing to symlink the following files")
         print("\n".join(link.dest for link in absent_files))
-        if (not self.prompt or
-                utils.user_confirm("Are these the correct files?")):
+        if (not self.prompt
+                or utils.user_confirm("Are these the correct files?")):
             utils.create_dirs(dirs=absent_dirs)
             utils.create_links(links=absent_files)
 

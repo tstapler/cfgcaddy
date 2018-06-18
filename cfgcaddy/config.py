@@ -20,9 +20,7 @@ class LinkerConfig():
     config = None
     links = []
 
-    def __init__(self,
-                 config_file_path=None,
-                 default_config=None):
+    def __init__(self, config_file_path=None, default_config=None):
         self.config_file_path = config_file_path
 
         if default_config:
@@ -56,10 +54,11 @@ class LinkerConfig():
         return utils.expand_path(self.preferences.get(dest))
 
     def write_config(self, prompt=True):
-        if (not os.path.exists(self.config_file_path) or (not prompt or
-            utils.user_confirm("The file {} exists.\n"
-                               "Would you like to overwrite this file?"
-                               .format(self.config_file_path)))):
+        if (not os.path.exists(self.config_file_path) or
+            (not prompt
+             or utils.user_confirm("The file {} exists.\n"
+                                   "Would you like to overwrite this file?"
+                                   .format(self.config_file_path)))):
             try:
                 logger.info("Writing config file")
                 with open(self.config_file_path, "w") as file:
@@ -101,10 +100,11 @@ class LinkerConfig():
                         if path.isabs(dest):
                             dest_path = src_name
                         else:
-                            dest_path = path.join(self.linker_dest,
-                                                  src_name)
-                        custom_links.append(Link(utils.expand_path(src_path), 
-                                                 utils.expand_path(dest_path)))
+                            dest_path = path.join(self.linker_dest, src_name)
+                        custom_links.append(
+                            Link(
+                                utils.expand_path(src_path),
+                                utils.expand_path(dest_path)))
             except KeyError:
                 logger.exception("Bad custom link")
 
@@ -117,14 +117,12 @@ class LinkerConfig():
         links = []
         for link in self.config.get("links", []):
             if type(link) is str:
-                link = {
-                    "src": link,
-                    "dest": []
-                }
+                link = {"src": link, "dest": []}
             if type(link.get("dest")) is str:
                 link["dest"] = [link["dest"]]
             links.append(link)
-        logger.debug("Links before formatting: {}".format(self.config.get("links")))
+        logger.debug(
+            "Links before formatting: {}".format(self.config.get("links")))
         logger.debug("Links after formatting: {}".format(links))
         return links
 

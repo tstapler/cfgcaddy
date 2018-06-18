@@ -66,10 +66,7 @@ class FileLinkTestCase(unittest.TestCase):
 
         self.expected_tree = {}
 
-        self.config_file_path = os.path.join(
-            self.source_dir,
-            ".cfgcaddy.yml"
-        )
+        self.config_file_path = os.path.join(self.source_dir, ".cfgcaddy.yml")
 
         open(self.config_file_path, 'a').close()
 

@@ -5,7 +5,6 @@ from cfgcaddy.tests import FileLinkTestCase, create_files_from_tree, list_files
 
 
 class TestLinkFolder(FileLinkTestCase):
-
     def recursive_dircmp(self, dircmp_obj):
         self.assertListEqual(dircmp_obj.left_only, [])
         self.assertListEqual(dircmp_obj.right_only, [])

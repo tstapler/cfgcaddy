@@ -9,6 +9,7 @@ from cfgcaddy.tests import FileLinkTestCase, create_files_from_tree
 
 logger = logging.getLogger("cfgcaddy.test.linker")
 
+
 def convert_link_format(line):
     """Convert from the old linker format to the new format
     src:dest => {src: dest}
@@ -18,14 +19,10 @@ def convert_link_format(line):
     if len(output) == 1:
         return line
     else:
-        return {
-            "src": output[0],
-            "dest": output[1:]
-        }
+        return {"src": output[0], "dest": output[1:]}
 
 
 class TestCustomLinker(FileLinkTestCase):
-
     def setup_linker(self, config):
         create_files_from_tree(self.source_tree, parent=self.source_dir)
         create_files_from_tree(self.dest_tree, parent=self.dest_dir)
@@ -45,8 +42,7 @@ class TestCustomLinker(FileLinkTestCase):
                     "linker_src": self.source_dir,
                     "linker_dest": self.dest_dir
                 },
-                "links": [convert_link_format(line)
-                          for line in lines],
+                "links": [convert_link_format(line) for line in lines],
                 "ignore": ["*ignore*"]
             }
 
@@ -129,10 +125,7 @@ class TestCustomLinker(FileLinkTestCase):
             "last.test": "",
         }
 
-        self.dest_tree = {
-            "test_folder": {
-            }
-        }
+        self.dest_tree = {"test_folder": {}}
 
         self.expected_tree = {
             "test_folder": {
@@ -174,11 +167,7 @@ class TestCustomLinker(FileLinkTestCase):
             }
         }
 
-        self.dest_tree = {
-            "test_folder": {
-                "existingfile.test": ""
-            }
-        }
+        self.dest_tree = {"test_folder": {"existingfile.test": ""}}
 
         self.expected_tree = {
             "test_folder": {
@@ -203,17 +192,9 @@ class TestCustomLinker(FileLinkTestCase):
         self.check_custom_linker(["last.test:different.test"])
 
     def test_deep_copy(self):
-        self.source_tree = {
-            ".mixxx": {
-                "controllers": {}
-            }
-        }
+        self.source_tree = {".mixxx": {"controllers": {}}}
 
-        self.expected_tree = {
-            ".mixxx": {
-                "controllers": {}
-            }
-        }
+        self.expected_tree = {".mixxx": {"controllers": {}}}
 
         self.check_custom_linker([".mixxx/controllers"])
 
@@ -252,17 +233,20 @@ class TestCustomLinker(FileLinkTestCase):
             },
             # The test harness doesnt check what happens if the dest is a string
             # we do this here to cover that case
-            "links": [{"src": "bin/scripts/*", "dest": "bin/scripts"},
-                      {"src": "stapler-scripts/*", "dest": "bin/scripts"}],
+            "links": [{
+                "src": "bin/scripts/*",
+                "dest": "bin/scripts"
+            }, {
+                "src": "stapler-scripts/*",
+                "dest": "bin/scripts"
+            }],
             "ignore": ["*ignore*"]
         }
 
         self.check_custom_linker([], config=config)
 
     def test_no_dest(self):
-        self.source_tree = {
-            "script1":""
-        }
+        self.source_tree = {"script1": ""}
 
         self.expected_tree = {
             "script1": "",
@@ -272,12 +256,13 @@ class TestCustomLinker(FileLinkTestCase):
                 "linker_src": self.source_dir,
                 "linker_dest": self.dest_dir
             },
-            "links": [{"src": "script1"}],
+            "links": [{
+                "src": "script1"
+            }],
             "ignore": ["*ignore*"]
         }
 
         self.check_custom_linker([], config=config)
-
 
     def test_basic_linker(self):
         self.source_tree = {
@@ -308,7 +293,6 @@ class TestCustomLinker(FileLinkTestCase):
                 "test2": "",
                 "test3": "",
                 "test4": "",
-
             },
             "top": {
                 "sub1": "",
@@ -324,31 +308,21 @@ class TestCustomLinker(FileLinkTestCase):
         }
 
         self.expected_tree = {
-            "top":
-                {
-                    "sub1": "",
-                    "sub2": "",
-                    "sub3": "",
-                }
+            "top": {
+                "sub1": "",
+                "sub2": "",
+                "sub3": "",
+            }
         }
 
         self.check_basic_linker()
 
     def test_expand_absolute_path(self):
-        self.source_tree = {
-            "first": ""
-        }
+        self.source_tree = {"first": ""}
 
-        self.expected_tree = {
-            "da": {
-                "real": {
-                    "location": ""
-                }
-            }
-        }
+        self.expected_tree = {"da": {"real": {"location": ""}}}
 
-
-        dest = os.path.join(self.dest_dir, "da","real","location")
+        dest = os.path.join(self.dest_dir, "da", "real", "location")
 
         os.environ["FILE_DEST"] = dest
 
@@ -366,7 +340,8 @@ class TestCustomLinker(FileLinkTestCase):
         if platform.system() == "Windows":
             src_var = "%FILE_SRC%"
 
-        logger.debug("{}:{}".format(os.environ["FILE_SRC"], os.environ["FILE_DEST"]))
+        logger.debug(
+            "{}:{}".format(os.environ["FILE_SRC"], os.environ["FILE_DEST"]))
         logger.debug("{}:{}".format(src_var, dest_var))
 
         self.check_custom_linker(["{}:{}".format(src_var, dest_var)])
@@ -383,17 +358,9 @@ class TestCustomLinker(FileLinkTestCase):
         self.check_basic_linker()
 
     def test_hidden_folder(self):
-    
-        self.source_tree = {
-            ".vim": {
-                "stuff": ""
-            }
-        }
 
-        self.expected_tree = {
-            ".vim": {
-                "stuff": ""
-            }
-        }
+        self.source_tree = {".vim": {"stuff": ""}}
+
+        self.expected_tree = {".vim": {"stuff": ""}}
 
         self.check_basic_linker()

@@ -28,11 +28,10 @@ class TestLinkerConfig(FileLinkTestCase):
             },
             "links": [],
             "ignore": []
-
         }
 
-        linker_config = LinkerConfig(self.config_file_path,
-                                     default_config=self.default_config)
+        linker_config = LinkerConfig(
+            self.config_file_path, default_config=self.default_config)
 
         linker_config.write_config(prompt=False)
 
