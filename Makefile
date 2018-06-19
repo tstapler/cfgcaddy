@@ -39,7 +39,7 @@ local-build-dist:
 	python3 setup.py sdist
 	python3 setup.py bdist_wheel --universal
 
-local-upload-dist: build-dist
+local-upload-dist: local-build-dist
 	twine upload dist/*
 
 local-watch-acceptance:
