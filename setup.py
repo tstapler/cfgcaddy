@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='cfgcaddy',
-    version='0.0.2',
+    version='0.1.1',
     description='Tool for managing configuration files',
     url='https://github.com/tstapler/cfgcaddy',
     author='Tyler Stapler',
