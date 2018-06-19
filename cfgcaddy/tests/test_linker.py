@@ -340,8 +340,8 @@ class TestCustomLinker(FileLinkTestCase):
         if platform.system() == "Windows":
             src_var = "%FILE_SRC%"
 
-        logger.debug(
-            "{}:{}".format(os.environ["FILE_SRC"], os.environ["FILE_DEST"]))
+        logger.debug("{}:{}".format(os.environ["FILE_SRC"],
+                                    os.environ["FILE_DEST"]))
         logger.debug("{}:{}".format(src_var, dest_var))
 
         self.check_custom_linker(["{}:{}".format(src_var, dest_var)])

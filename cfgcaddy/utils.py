@@ -85,8 +85,8 @@ def move_files(transactions=None):
             try:
                 shutil.move(transaction.src, transaction.dest)
             except OSError:
-                logger.error("Can't move from {} to {}"
-                             .format(transaction.src, transaction.dest))
+                logger.error("Can't move from {} to {}".format(
+                    transaction.src, transaction.dest))
 
 
 def expand_path(path):

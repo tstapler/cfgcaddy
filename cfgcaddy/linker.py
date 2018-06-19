@@ -83,15 +83,15 @@ def link_folder(src, dest, force=False):
     try:
         # Both Folders Exist
         if path.exists(dest) and path.exists(src) and not path.islink(dest):
-            if force or utils.user_confirm("Link and merge {} to {}"
-                                           .format(src, dest)):
+            if force or utils.user_confirm("Link and merge {} to {}".format(
+                    src, dest)):
                 absent_files, absent_dirs = find_absences(dest, src)
                 zip_file = shutil.make_archive(
                     path.join(src, "{}_backup".format(folder_name)),
                     "zip",
                     root_dir=dest)
-                logger.info(
-                    "Backing up {} to {}".format(folder_name, zip_file))
+                logger.info("Backing up {} to {}".format(
+                    folder_name, zip_file))
                 utils.create_dirs(absent_dirs)
                 logger.info("Created {}".format(absent_dirs))
                 utils.move_files(absent_files)

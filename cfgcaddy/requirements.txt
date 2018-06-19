@@ -1,4 +1,0 @@
-blessings==1.6
-inquirer==2.1.11
-PyYAML==3.12
-readchar==0.7

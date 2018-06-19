@@ -5,7 +5,7 @@ PROJECT_NAME=cfgcaddy
 IMAGE_TAG=$(REPO_OWNER)/$(PROJECT_NAME)_dev
 
 # Build the docker container
-DOCKER_BUILD=docker build . -t $(IMAGE_TAG)
+DOCKER_BUILD=docker build . -t $(IMAGE_TAG) --target build
 
 # Ensure the container is built and execute a command in it
 DOCKER_RUN=$(DOCKER_BUILD) && docker run -it -v $(CURDIR):/$(PROJECT_NAME) $(IMAGE_TAG) sh -c
