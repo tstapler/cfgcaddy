@@ -13,7 +13,7 @@ setup(
         "click==6.7",
         "enum34==1.1.6",
         "pathspec==0.5.3",
-        "pyyaml==3.12",
+        "pyyaml==5.1",
         "whaaaaat==0.5.2",
     ],
     entry_points={'console_scripts': ['cfgcaddy = cfgcaddy.__main__:main']},

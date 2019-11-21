@@ -3,7 +3,7 @@ enum34==1.1.6
 pathspec==0.5.3
 prompt-toolkit==1.0.14
 Pygments==2.2.0
-PyYAML==3.12
+PyYAML==5.1
 regex==2017.7.11
 six==1.10.0
 wcwidth==0.1.7
