@@ -1,9 +1,11 @@
 import os
 
-import yaml
+from ruamel.yaml import YAML
 
 from cfgcaddy.config import LinkerConfig
 from cfgcaddy.tests import FileLinkTestCase
+
+yaml=YAML(typ='safe')   # default, if not specfied, is 'rt' (round-trip)
 
 
 class TestLinkerConfig(FileLinkTestCase):

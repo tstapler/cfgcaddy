@@ -5,12 +5,13 @@ import platform
 import sys
 from os import path
 
-import yaml
+from ruamel.yaml import YAML
 
 from cfgcaddy import utils
 from cfgcaddy.link import Link
 
 logger = logging.getLogger("cfgcaddy.config")
+yaml=YAML(typ='safe')   # default, if not specfied, is 'rt' (round-trip)
 
 MISSING_FILE_MESSAGE = "Please create a {} file in the same" \
     " directory as the linker python file."
