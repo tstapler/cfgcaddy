@@ -6,13 +6,13 @@ RUN apt-get update && apt-get install -y \
 COPY /requirements_dev.txt /requirements_dev.txt
 RUN pip install -r requirements_dev.txt
 
-COPY requirements.txt /requirements.txt
-RUN pip install -r requirements.txt
 
 COPY Makefile /cfgcaddy/Makefile
 
 COPY ./cfgcaddy /cfgcaddy/cfgcaddy
 COPY ./setup.py /cfgcaddy/setup.py
+
+RUN pip install -e /cfgcaddy
 
 FROM build as dist
 WORKDIR /cfgcaddy
