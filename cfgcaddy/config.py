@@ -11,7 +11,7 @@ from cfgcaddy import utils
 from cfgcaddy.link import Link
 
 logger = logging.getLogger("cfgcaddy.config")
-yaml=YAML(typ='safe')   # default, if not specfied, is 'rt' (round-trip)
+yaml = YAML(typ='safe')  # default, if not specfied, is 'rt' (round-trip)
 
 MISSING_FILE_MESSAGE = "Please create a {} file in the same" \
     " directory as the linker python file."
@@ -55,11 +55,11 @@ class LinkerConfig():
         return utils.expand_path(self.preferences.get(dest))
 
     def write_config(self, prompt=True):
-        if (not os.path.exists(self.config_file_path) or
-            (not prompt
-             or utils.user_confirm("The file {} exists.\n"
-                                   "Would you like to overwrite this file?"
-                                   .format(self.config_file_path)))):
+        if (not os.path.exists(self.config_file_path)
+                or (not prompt or utils.user_confirm(
+                    "The file {} exists.\n"
+                    "Would you like to overwrite this file?".format(
+                        self.config_file_path)))):
             try:
                 logger.info("Writing config file")
                 with open(self.config_file_path, "w") as file:
@@ -103,9 +103,8 @@ class LinkerConfig():
                         else:
                             dest_path = path.join(self.linker_dest, src_name)
                         custom_links.append(
-                            Link(
-                                utils.expand_path(src_path),
-                                utils.expand_path(dest_path)))
+                            Link(utils.expand_path(src_path),
+                                 utils.expand_path(dest_path)))
             except KeyError:
                 logger.exception("Bad custom link")
 

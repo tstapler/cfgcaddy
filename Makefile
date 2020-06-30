@@ -31,7 +31,7 @@ local-format:
 
 # Add local rules which are run in the docker container
 local-test:
-	nosetests
+	pytest
 
 local-build-dist:
 	pandoc --from=markdown --to=rst --output=README.rst README.md

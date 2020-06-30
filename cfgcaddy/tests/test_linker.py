@@ -9,7 +9,7 @@ from cfgcaddy.linker import Linker
 from cfgcaddy.tests import FileLinkTestCase, create_files_from_tree
 
 logger = logging.getLogger("cfgcaddy.test.linker")
-yaml=YAML(typ='safe')   # default, if not specfied, is 'rt' (round-trip)
+yaml = YAML(typ='safe')  # default, if not specfied, is 'rt' (round-trip)
 
 
 def convert_link_format(line):

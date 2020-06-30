@@ -54,8 +54,8 @@ def create_config(config_path, new_config=None):
 
     logger.debug("Creating Config => {}".format(new_config))
 
-    config = cfgcaddy.config.LinkerConfig(
-        config_file_path=config_path, default_config=new_config)
+    config = cfgcaddy.config.LinkerConfig(config_file_path=config_path,
+                                          default_config=new_config)
     config.write_config()
     return config
 
@@ -72,11 +72,10 @@ def main(debug, quiet):
 
 
 @main.command()
-@click.option(
-    '-c',
-    '--config',
-    default=cfgcaddy.DEFAULT_CONFIG_PATH,
-    help="The path to your cfgcaddy.yml")
+@click.option('-c',
+              '--config',
+              default=cfgcaddy.DEFAULT_CONFIG_PATH,
+              help="The path to your cfgcaddy.yml")
 @click.option('-y', '--no-prompt', is_flag=True)
 def link(config, no_prompt):
     """Link your config files"""
@@ -95,13 +94,12 @@ def link(config, no_prompt):
 
 @main.command()
 @click.argument('src_directory', type=click.Path(exists=True, file_okay=False))
-@click.argument(
-    'dest_directory', type=click.Path(exists=True, file_okay=False))
-@click.option(
-    '-c',
-    '--config',
-    type=click.Path(exists=True, dir_okay=False),
-    help="The path to your cfgcaddy.yml")
+@click.argument('dest_directory',
+                type=click.Path(exists=True, file_okay=False))
+@click.option('-c',
+              '--config',
+              type=click.Path(exists=True, dir_okay=False),
+              help="The path to your cfgcaddy.yml")
 def init(src_directory, dest_directory, config):
     """Create or import a caddy config"""
     src_config_path = os.path.join(src_directory, cfgcaddy.DEFAULT_CONFIG_NAME)

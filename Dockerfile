@@ -3,8 +3,8 @@ RUN apt-get update && apt-get install -y \
     pandoc \
  && rm -rf /var/lib/apt/lists/*
 
-COPY /requirements-dev.txt /requirements-dev.txt
-RUN pip install -r requirements-dev.txt
+COPY /requirements_dev.txt /requirements_dev.txt
+RUN pip install -r requirements_dev.txt
 
 COPY requirements.txt /requirements.txt
 RUN pip install -r requirements.txt

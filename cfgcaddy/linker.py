@@ -86,10 +86,10 @@ def link_folder(src, dest, force=False):
             if force or utils.user_confirm("Link and merge {} to {}".format(
                     src, dest)):
                 absent_files, absent_dirs = find_absences(dest, src)
-                zip_file = shutil.make_archive(
-                    path.join(src, "{}_backup".format(folder_name)),
-                    "zip",
-                    root_dir=dest)
+                zip_file = shutil.make_archive(path.join(
+                    src, "{}_backup".format(folder_name)),
+                                               "zip",
+                                               root_dir=dest)
                 logger.info("Backing up {} to {}".format(
                     folder_name, zip_file))
                 utils.create_dirs(absent_dirs)
@@ -138,7 +138,6 @@ def link_folder(src, dest, force=False):
 class Linker():
     """Tyler Stapler's Config Linker
     """
-
     def __init__(self, linker_config, prompt=True):
 
         if not linker_config:

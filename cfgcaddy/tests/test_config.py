@@ -5,7 +5,7 @@ from ruamel.yaml import YAML
 from cfgcaddy.config import LinkerConfig
 from cfgcaddy.tests import FileLinkTestCase
 
-yaml=YAML(typ='safe')   # default, if not specfied, is 'rt' (round-trip)
+yaml = YAML(typ='safe')  # default, if not specfied, is 'rt' (round-trip)
 
 
 class TestLinkerConfig(FileLinkTestCase):
@@ -32,8 +32,8 @@ class TestLinkerConfig(FileLinkTestCase):
             "ignore": []
         }
 
-        linker_config = LinkerConfig(
-            self.config_file_path, default_config=self.default_config)
+        linker_config = LinkerConfig(self.config_file_path,
+                                     default_config=self.default_config)
 
         linker_config.write_config(prompt=False)
 
