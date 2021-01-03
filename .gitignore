@@ -97,3 +97,6 @@ ENV/
 
 # Ruby Dev files
 .byebug_history
+
+# Intellij
+.idea
