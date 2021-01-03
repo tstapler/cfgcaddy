@@ -8,7 +8,7 @@ Config Caddy is a tool used for managing your configuration files.
 
 One way to version your configuration files is to keep them in a [git](https://git-scm.com/) repository. This has several drawbacks, among them, git requires the files it manages to be located within a single file tree. You can overcome this limitation by using symbolic links. The links point from locations in your filesystem such as `/etc/someconfig.conf`to files within the git repository like `$HOME/tstapler/dotfiles/someconfig.conf`.
 
-Config Caddy creates symlinks to your dotfiles directory so you don't have to. Each time you add a new file to your dotfiles repo, run `cfgcaddy link` to generate symlinks. By default `cfgcaddy` will create links from files in the dotfiles repo to their relative location in your home directory. `cfgcaddy` will also read from a configuration file. This allows the user to ignore certain files and create more complex linking relationships.
+Config Caddy creates symlinks to your dotfiles directory, so you don't have to. Each time you add a new file to your dotfiles repo, run `cfgcaddy link` to generate symlinks. By default `cfgcaddy` will create links from files in the dotfiles repo to their relative location in your home directory. `cfgcaddy` will also read from a configuration file. This allows the user to ignore certain files and create more complex linking relationships.
 
 
 ## Usage
@@ -70,19 +70,6 @@ pip install --editable ./cfgcaddy
 3. ??????
 
 4. Profit
-
-### Integration Tests
-
-To test the project from a users standpoint we use [Aruba](https://github.com/cucumber/aruba). Aruba is build on top of Cucumber, a library for creating user readable acceptance tests.
-
-To run our acceptance tests use:
-```shell
-
-make watch-acceptance
-
-```
-
-The command will build a docker container, then run the acceptance test suite whenever files change
 
 ## Motivation/Prior Art
 
