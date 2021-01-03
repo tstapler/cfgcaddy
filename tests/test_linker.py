@@ -6,7 +6,7 @@ from ruamel.yaml import YAML
 
 from cfgcaddy.config import LinkerConfig
 from cfgcaddy.linker import Linker
-from cfgcaddy.tests import FileLinkTestCase, create_files_from_tree
+from tests import FileLinkTestCase, create_files_from_tree
 
 logger = logging.getLogger("cfgcaddy.test.linker")
 yaml = YAML(typ='safe')  # default, if not specfied, is 'rt' (round-trip)
@@ -54,7 +54,11 @@ class TestCustomLinker(FileLinkTestCase):
 
         self.assertDestMatchesExpected()
 
-    def check_basic_linker(self, links=[], ignore=["*ignore*"], config=None):
+    def check_basic_linker(self, links=None, ignore=None, config=None):
+        if links is None:
+            links = []
+        if ignore is None:
+            ignore = ["*ignore*"]
         if config is None:
             config = {
                 "preferences": {

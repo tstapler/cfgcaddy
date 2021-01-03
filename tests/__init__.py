@@ -6,31 +6,31 @@ import tempfile
 import unittest
 
 
-def getFromDict(dataDict, mapList):
-    return reduce(operator.getitem, mapList, dataDict)
+def get_from_dict(data_dict, map_list):
+    return reduce(operator.getitem, map_list, data_dict)
 
 
-def setInDict(dataDict, mapList, value):
-    getFromDict(dataDict, mapList[:-1])[mapList[-1]] = value
+def set_in_dict(data_dict, map_list, value):
+    get_from_dict(data_dict, map_list[:-1])[map_list[-1]] = value
 
 
-def list_files(startpath):
-    for root, dirs, files in os.walk(startpath):
-        level = root.replace(startpath, '').count(os.sep)
-        indent = ' ' * 4 * (level)
+def list_files(start_path):
+    for root, dirs, files in os.walk(start_path):
+        level = root.replace(start_path, '').count(os.sep)
+        indent = ' ' * 4 * level
         print('{}{}/'.format(indent, os.path.basename(root)))
-        subindent = ' ' * 4 * (level + 1)
+        sub_indent = ' ' * 4 * (level + 1)
         for f in files:
-            print('{}{}'.format(subindent, f))
+            print('{}{}'.format(sub_indent, f))
 
 
-def dir_dict(startpath):
+def dir_dict(start_path):
     structure = {}
-    for root, dirs, files in os.walk(startpath):
-        current_level = os.path.relpath(root, startpath).split(os.sep)
+    for root, dirs, files in os.walk(start_path):
+        current_level = os.path.relpath(root, start_path).split(os.sep)
         depth = len(current_level)
         if depth >= 1 and current_level[0] != '.':
-            current_dict = getFromDict(structure, current_level)
+            current_dict = get_from_dict(structure, current_level)
         else:
             current_dict = structure
 
@@ -77,8 +77,8 @@ class FileLinkTestCase(unittest.TestCase):
     def recursive_dircmp(self, dircmp_obj):
         self.assertListEqual(dircmp_obj.left_only, [])
         self.assertListEqual(dircmp_obj.right_only, [])
-        for dir_name, dir in dircmp_obj.subdirs.items():
-            self.recursive_dircmp(dir)
+        for directory, sub_directory in dircmp_obj.subdirs.items():
+            self.recursive_dircmp(sub_directory)
 
     def assertDestMatchesExpected(self):
         dest_tree = dir_dict(self.dest_dir)

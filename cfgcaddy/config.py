@@ -13,8 +13,9 @@ from cfgcaddy.link import Link
 logger = logging.getLogger("cfgcaddy.config")
 yaml = YAML(typ='safe')  # default, if not specfied, is 'rt' (round-trip)
 
+
 MISSING_FILE_MESSAGE = "Please create a {} file in the same" \
-    " directory as the linker python file."
+                       " directory as the linker python file."
 
 
 class LinkerConfig():
@@ -83,17 +84,17 @@ class LinkerConfig():
                     continue
 
                 link_src = utils.expand_path(link["src"])
-                link_dests = link.get("dest")
+                link_destinations = link.get("dest")
                 src_files = glob.glob(path.join(self.linker_src, link_src))
 
                 # To account for no destination
-                if not link_dests:
+                if not link_destinations:
                     if len(src_files) > 1:
-                        link_dests = [path.dirname(link_src)]
+                        link_destinations = [path.dirname(link_src)]
                     else:
-                        link_dests = [link_src]
+                        link_destinations = [link_src]
                 for src_path in src_files:
-                    for dest in map(utils.expand_path, link_dests):
+                    for dest in map(utils.expand_path, link_destinations):
                         if len(src_files) > 1:
                             src_name = path.join(dest, path.basename(src_path))
                         else:

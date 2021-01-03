@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "cfgcaddy"
+version = "0.1.3"
+description = "A cli for managing user's config files"
+authors = ["Tyler Stapler <tystapler@gmail.com>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = ">=3.6,<3.10"
+click = "^7.1.2"
+pathspec = "^0.8.1"
+whaaaaat = "^0.5.2"
+"ruamel.yaml" = "^0.16.12"
+questionary = "^1.9.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.2.1"
+poetry-publish = "^0.4.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+cfgcaddy = 'cfgcaddy.__main__:main'
+publish = 'cfgcaddy.publish:publish'

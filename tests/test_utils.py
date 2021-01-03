@@ -1,15 +1,15 @@
 from filecmp import dircmp
 
 from cfgcaddy.linker import link_folder
-from cfgcaddy.tests import FileLinkTestCase, create_files_from_tree, list_files
+from tests import FileLinkTestCase, create_files_from_tree, list_files
 
 
 class TestLinkFolder(FileLinkTestCase):
     def recursive_dircmp(self, dircmp_obj):
         self.assertListEqual(dircmp_obj.left_only, [])
         self.assertListEqual(dircmp_obj.right_only, [])
-        for dir_name, dir in dircmp_obj.subdirs.items():
-            self.recursive_dircmp(dir)
+        for dir_name, sub_dir in dircmp_obj.subdirs.items():
+            self.recursive_dircmp(sub_dir)
 
     def link_and_print(self):
         print("Before:")

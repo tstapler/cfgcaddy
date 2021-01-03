@@ -1,7 +1,7 @@
 from os import path
 
 from cfgcaddy.link import Link
-from cfgcaddy.tests import FileLinkTestCase, create_files_from_tree
+from tests import FileLinkTestCase, create_files_from_tree
 
 
 class TestLink(FileLinkTestCase):

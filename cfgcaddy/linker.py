@@ -1,8 +1,6 @@
-import distutils
 import logging
 import os
 import shutil
-from distutils import dir_util
 from os import path
 
 import pathspec
@@ -14,25 +12,27 @@ from cfgcaddy.link import Link
 logger = logging.getLogger("cfgcaddy.linker")
 
 
-def find_absences(src, dest, ignored_patterns=[]):
+def find_absences(src, dest, ignored_patterns=None):
     """ Walk the source directory and return a lists of files and dirs absent
         from the destination directory
 
     Args:
-        source: The path to copy from (Default is the script's location)
-        destination The path to copy to (Defaults to home directory)
+        src: The path to copy from (Default is the script's location)
+        dest The path to copy to (Defaults to home directory)
 
     Returns:
         absent_files: a list of Links
         absent_dirs: a list of paths to directories
     """
+    if not ignored_patterns:
+        ignored_patterns = []
     absent_dirs = []
     absent_files = []
 
     default_ignore = ["!.*", cfgcaddy.DEFAULT_CONFIG_NAME, ".git"]
 
     ignored = pathspec.PathSpec.from_lines('gitwildmatch',
-                                           ignored_patterns + default_ignore)
+                                           default_ignore + ignored_patterns)
 
     for root, dirs, files in os.walk(src, topdown=True):
         rel_path = path.relpath(root, src)
@@ -88,8 +88,8 @@ def link_folder(src, dest, force=False):
                 absent_files, absent_dirs = find_absences(dest, src)
                 zip_file = shutil.make_archive(path.join(
                     src, "{}_backup".format(folder_name)),
-                                               "zip",
-                                               root_dir=dest)
+                    "zip",
+                    root_dir=dest)
                 logger.info("Backing up {} to {}".format(
                     folder_name, zip_file))
                 utils.create_dirs(absent_dirs)
@@ -106,8 +106,8 @@ def link_folder(src, dest, force=False):
         elif (not path.exists(dest) and not path.islink(dest)
               and path.exists(src)):
             try:
-                dir_util.mkpath(path.dirname(dest), verbose=1)
-            except distutils.errors.DistutilsFileError:
+                os.makedirs(path.dirname(dest))
+            except Exception:
                 logger.error("Failed to make dir {}".format(dest))
                 return
             os.symlink(src, dest)
@@ -118,7 +118,7 @@ def link_folder(src, dest, force=False):
         elif path.exists(dest) and not path.exists(src):
             if (force or utils.user_confirm("Delete, Move to {} and"
                                             " Link back to {}?".format(
-                                                src, dest))):
+                src, dest))):
                 shutil.move(dest, src)
                 logger.info("Moving {} to {}".format(dest, src))
                 shutil.rmtree(dest)
@@ -138,6 +138,7 @@ def link_folder(src, dest, force=False):
 class Linker():
     """Tyler Stapler's Config Linker
     """
+
     def __init__(self, linker_config, prompt=True):
 
         if not linker_config:
@@ -174,9 +175,6 @@ class Linker():
 
     def create_custom_links(self):
         """Link all the files in the customlink file
-
-        Args:
-            None
 
         Returns:
             None

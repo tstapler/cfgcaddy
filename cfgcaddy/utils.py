@@ -3,7 +3,8 @@ import os
 import shutil
 from os import path
 
-from whaaaaat import prompt
+from questionary import prompt
+
 
 logger = logging.getLogger("cfgcaddy.utils")
 
@@ -64,7 +65,7 @@ def create_links(links=None):
             try:
                 make_parent_dirs(link.dest)
                 os.symlink(link.src, link.dest)
-            except (OSError) as err:
+            except OSError as err:
                 # If the file exists and isn't a link
                 if err.errno == 17 and not os.path.islink(link.dest):
                     logger.error(
@@ -90,5 +91,5 @@ def move_files(transactions=None):
                     transaction.src, transaction.dest))
 
 
-def expand_path(path):
-    return os.path.expandvars(os.path.expanduser(path))
+def expand_path(file_path):
+    return os.path.expandvars(os.path.expanduser(file_path))

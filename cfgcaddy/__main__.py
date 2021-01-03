@@ -6,7 +6,7 @@ import platform
 import sys
 
 import click
-from whaaaaat import prompt
+from questionary import prompt
 
 import cfgcaddy
 import cfgcaddy.config

@@ -49,6 +49,6 @@ class Link():
             try:
                 make_parent_dirs(self.dest)
                 os.symlink(self.src, self.dest)
-            except (OSError) as err:
+            except OSError as err:
                 logger.error("Can't make link from {} to {} because {}".format(
                     self.src, self.dest, err.strerror))
