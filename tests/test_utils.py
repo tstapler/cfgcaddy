@@ -26,16 +26,12 @@ class TestLinkFolder(FileLinkTestCase):
         self.source_tree = {
             "file1": "stuff",
             "file2": "stuff",
-            "dir1": {
-                "file3": "stuff"
-            }
+            "dir1": {"file3": "stuff"},
         }
         self.dest_tree = {
             "file4": "stuff",
             "file5": "stuff",
-            "dir2": {
-                "file6": "stuff"
-            }
+            "dir2": {"file6": "stuff"},
         }
 
         create_files_from_tree(self.source_tree, parent=self.source_dir)
@@ -48,9 +44,7 @@ class TestLinkFolder(FileLinkTestCase):
         self.dest_tree = {
             "file1": "stuff",
             "file2": "stuff",
-            "dir1": {
-                "file3": "stuff"
-            }
+            "dir1": {"file3": "stuff"},
         }
         create_files_from_tree(self.dest_tree, parent=self.dest_dir)
         self.link_and_print()
@@ -62,9 +56,7 @@ class TestLinkFolder(FileLinkTestCase):
         self.source_tree = {
             "file1": "stuff",
             "file2": "stuff",
-            "dir1": {
-                "file3": "stuff"
-            }
+            "dir1": {"file3": "stuff"},
         }
         create_files_from_tree(self.source_tree, parent=self.source_dir)
         self.link_and_print()

@@ -16,12 +16,12 @@ def set_in_dict(data_dict, map_list, value):
 
 def list_files(start_path):
     for root, dirs, files in os.walk(start_path):
-        level = root.replace(start_path, '').count(os.sep)
-        indent = ' ' * 4 * level
-        print('{}{}/'.format(indent, os.path.basename(root)))
-        sub_indent = ' ' * 4 * (level + 1)
+        level = root.replace(start_path, "").count(os.sep)
+        indent = " " * 4 * level
+        print("{}{}/".format(indent, os.path.basename(root)))
+        sub_indent = " " * 4 * (level + 1)
         for f in files:
-            print('{}{}'.format(sub_indent, f))
+            print("{}{}".format(sub_indent, f))
 
 
 def dir_dict(start_path):
@@ -29,7 +29,7 @@ def dir_dict(start_path):
     for root, dirs, files in os.walk(start_path):
         current_level = os.path.relpath(root, start_path).split(os.sep)
         depth = len(current_level)
-        if depth >= 1 and current_level[0] != '.':
+        if depth >= 1 and current_level[0] != ".":
             current_dict = get_from_dict(structure, current_level)
         else:
             current_dict = structure
@@ -46,14 +46,14 @@ def handle_links(function, path, execinfo):
         os.unlink(path)
 
 
-def create_files_from_tree(tree, parent=''):
+def create_files_from_tree(tree, parent=""):
     for name, content in tree.items():
         name = os.path.join(parent, name)
         if type(content) is dict:
             os.makedirs(name)
             create_files_from_tree(content, parent=name)
         else:
-            open(name, 'a').close()
+            open(name, "a").close()
 
 
 class FileLinkTestCase(unittest.TestCase):
@@ -68,7 +68,7 @@ class FileLinkTestCase(unittest.TestCase):
 
         self.config_file_path = os.path.join(self.source_dir, ".cfgcaddy.yml")
 
-        open(self.config_file_path, 'a').close()
+        open(self.config_file_path, "a").close()
 
     def tearDown(self):
         shutil.rmtree(self.source_dir, onerror=handle_links)

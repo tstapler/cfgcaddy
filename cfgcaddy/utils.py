@@ -20,12 +20,9 @@ def user_confirm(question, default=True):
 
     Returns "answer" return value is True for "yes" or False for "no".
     """
-    return prompt([{
-        "type": "confirm",
-        "name": "ok",
-        "message": question,
-        "default": default
-    }]).get("ok")
+    return prompt(
+        [{"type": "confirm", "name": "ok", "message": question, "default": default}]
+    ).get("ok")
 
 
 def create_dirs(dirs=None):
@@ -70,7 +67,9 @@ def create_links(links=None):
                 if err.errno == 17 and not os.path.islink(link.dest):
                     logger.error(
                         "Can't make link from {} to {} because {}".format(
-                            link.src, link.dest, err.strerror))
+                            link.src, link.dest, err.strerror
+                        )
+                    )
 
 
 def move_files(transactions=None):
@@ -87,8 +86,9 @@ def move_files(transactions=None):
             try:
                 shutil.move(transaction.src, transaction.dest)
             except OSError:
-                logger.error("Can't move from {} to {}".format(
-                    transaction.src, transaction.dest))
+                logger.error(
+                    "Can't move from {} to {}".format(transaction.src, transaction.dest)
+                )
 
 
 def expand_path(file_path):

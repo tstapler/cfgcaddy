@@ -7,7 +7,7 @@ from cfgcaddy.utils import make_parent_dirs
 logger = logging.getLogger("cfgcaddy.link")
 
 
-class Link():
+class Link:
     def __init__(self, src, dest):
         """docstring for __init__"""
 
@@ -50,5 +50,8 @@ class Link():
                 make_parent_dirs(self.dest)
                 os.symlink(self.src, self.dest)
             except OSError as err:
-                logger.error("Can't make link from {} to {} because {}".format(
-                    self.src, self.dest, err.strerror))
+                logger.error(
+                    "Can't make link from {} to {} because {}".format(
+                        self.src, self.dest, err.strerror
+                    )
+                )
