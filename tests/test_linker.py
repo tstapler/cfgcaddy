@@ -9,14 +9,14 @@ from cfgcaddy.linker import Linker
 from tests import FileLinkTestCase, create_files_from_tree
 
 logger = logging.getLogger("cfgcaddy.test.linker")
-yaml = YAML(typ='safe')  # default, if not specfied, is 'rt' (round-trip)
+yaml = YAML(typ="safe")  # default, if not specfied, is 'rt' (round-trip)
 
 
 def convert_link_format(line):
     """Convert from the old linker format to the new format
     src:dest => {src: dest}
     """
-    output = line.split(':')
+    output = line.split(":")
 
     if len(output) == 1:
         return line
@@ -42,10 +42,10 @@ class TestCustomLinker(FileLinkTestCase):
             config = {
                 "preferences": {
                     "linker_src": self.source_dir,
-                    "linker_dest": self.dest_dir
+                    "linker_dest": self.dest_dir,
                 },
                 "links": [convert_link_format(line) for line in lines],
-                "ignore": ["*ignore*"]
+                "ignore": ["*ignore*"],
             }
 
         linker = self.setup_linker(config)
@@ -63,10 +63,10 @@ class TestCustomLinker(FileLinkTestCase):
             config = {
                 "preferences": {
                     "linker_src": self.source_dir,
-                    "linker_dest": self.dest_dir
+                    "linker_dest": self.dest_dir,
                 },
                 "links": links,
-                "ignore": ignore
+                "ignore": ignore,
             }
 
         linker = self.setup_linker(config)
@@ -180,7 +180,7 @@ class TestCustomLinker(FileLinkTestCase):
                 "something.test": "",
                 "another.test": "",
                 "last.test": "",
-                "existingfile.test": ""
+                "existingfile.test": "",
             },
         }
 
@@ -217,7 +217,7 @@ class TestCustomLinker(FileLinkTestCase):
                 "script4": "",
                 "script5": "",
                 "script6": "",
-            }
+            },
         }
 
         self.expected_tree = {
@@ -235,18 +235,15 @@ class TestCustomLinker(FileLinkTestCase):
         config = {
             "preferences": {
                 "linker_src": self.source_dir,
-                "linker_dest": self.dest_dir
+                "linker_dest": self.dest_dir,
             },
             # The test harness doesnt check what happens if the dest is a string
             # we do this here to cover that case
-            "links": [{
-                "src": "bin/scripts/*",
-                "dest": "bin/scripts"
-            }, {
-                "src": "stapler-scripts/*",
-                "dest": "bin/scripts"
-            }],
-            "ignore": ["*ignore*"]
+            "links": [
+                {"src": "bin/scripts/*", "dest": "bin/scripts"},
+                {"src": "stapler-scripts/*", "dest": "bin/scripts"},
+            ],
+            "ignore": ["*ignore*"],
         }
 
         self.check_custom_linker([], config=config)
@@ -260,12 +257,10 @@ class TestCustomLinker(FileLinkTestCase):
         config = {
             "preferences": {
                 "linker_src": self.source_dir,
-                "linker_dest": self.dest_dir
+                "linker_dest": self.dest_dir,
             },
-            "links": [{
-                "src": "script1"
-            }],
-            "ignore": ["*ignore*"]
+            "links": [{"src": "script1"}],
+            "ignore": ["*ignore*"],
         }
 
         self.check_custom_linker([], config=config)
@@ -278,7 +273,7 @@ class TestCustomLinker(FileLinkTestCase):
             "test4": "",
             "test5": "",
             "test6": "",
-            "ignore.file": ""
+            "ignore.file": "",
         }
 
         self.expected_tree = {
@@ -309,8 +304,8 @@ class TestCustomLinker(FileLinkTestCase):
                     "test2": "",
                     "test3": "",
                     "test4": "",
-                }
-            }
+                },
+            },
         }
 
         self.expected_tree = {
@@ -346,8 +341,7 @@ class TestCustomLinker(FileLinkTestCase):
         if platform.system() == "Windows":
             src_var = "%FILE_SRC%"
 
-        logger.debug("{}:{}".format(os.environ["FILE_SRC"],
-                                    os.environ["FILE_DEST"]))
+        logger.debug("{}:{}".format(os.environ["FILE_SRC"], os.environ["FILE_DEST"]))
         logger.debug("{}:{}".format(src_var, dest_var))
 
         self.check_custom_linker(["{}:{}".format(src_var, dest_var)])

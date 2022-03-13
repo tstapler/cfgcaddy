@@ -3,7 +3,11 @@ from enum import Enum
 
 __version__ = "0.1.3"
 
-LINK_MODE = Enum("LINK_MODE", "SKIP OVERRIDE")
+
+class LinkMode(Enum):
+    SKIP = "SKIP"
+    OVERRIDE = "OVERRIDE"
+
 
 DEFAULT_CONFIG_NAME = ".cfgcaddy.yml"
 

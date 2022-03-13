@@ -16,8 +16,9 @@ class TestLink(FileLinkTestCase):
 
         self.setup_files()
 
-        link = Link(path.join(self.source_dir, file_name),
-                    path.join(self.dest_dir, file_name))
+        link = Link(
+            path.join(self.source_dir, file_name), path.join(self.dest_dir, file_name)
+        )
         link.create()
 
         self.assertFalse(link.is_linked)
@@ -29,8 +30,9 @@ class TestLink(FileLinkTestCase):
 
         self.setup_files()
 
-        link = Link(path.join(self.source_dir, file_name),
-                    path.join(self.dest_dir, file_name))
+        link = Link(
+            path.join(self.source_dir, file_name), path.join(self.dest_dir, file_name)
+        )
         link.create()
 
         self.assertTrue(link.is_linked)

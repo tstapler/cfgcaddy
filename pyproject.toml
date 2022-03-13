@@ -7,16 +7,17 @@ authors = ["Tyler Stapler <tystapler@gmail.com>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = ">=3.6,<3.10"
-click = "^7.1.2"
-pathspec = "^0.8.1"
-whaaaaat = "^0.5.2"
+python = ">=3.7,<4.0.0"
+click = "^8.0.0"
+pathspec = ">=0.8.1"
 "ruamel.yaml" = "^0.16.12"
 questionary = "^1.9.0"
 
 [tool.poetry.dev-dependencies]
-pytest = "^6.2.1"
+pytest = "^7.0.0"
 poetry-publish = "^0.4.0"
+black = "^22.1.0"
+python-semantic-release = "^7.26.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
@@ -25,3 +26,13 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry.scripts]
 cfgcaddy = 'cfgcaddy.__main__:main'
 publish = 'cfgcaddy.publish:publish'
+
+[tool.semantic_release]
+version_variable = [
+    "cfgcaddy/__init__.py:__version__",
+    "pyproject.toml:version"
+]
+branch = "master"
+upload_to_pypi = true
+upload_to_release = true
+build_command = "pip install poetry && poetry build"
