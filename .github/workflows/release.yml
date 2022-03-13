@@ -6,7 +6,6 @@ on:
 jobs:
   # https://python-semantic-release.readthedocs.io/en/stable/automatic-releases/github-actions.html
   release:
-    needs: ci
     # https://github.community/t/how-do-i-specify-job-dependency-running-in-another-workflow/16482
     runs-on: ubuntu-latest
     concurrency: release
