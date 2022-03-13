@@ -1,7 +1,7 @@
 import logging
 import os
 
-from cfgcaddy import LINK_MODE
+from cfgcaddy import LinkMode
 from cfgcaddy.utils import make_parent_dirs
 
 logger = logging.getLogger("cfgcaddy.link")
@@ -24,7 +24,7 @@ class Link:
     def is_linked(self):
         return os.path.islink(self.dest)
 
-    def create(self, mode=LINK_MODE.SKIP):
+    def create(self, mode=LinkMode.SKIP):
         if os.path.exists(self.dest):
             pass
         # TODO: if dest exists
