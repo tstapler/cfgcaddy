@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!--next-version-placeholder-->
 
+## v0.1.7 (2022-03-14)
+### Fix
+* Correct prompt name ([`ae5feec`](https://github.com/tstapler/cfgcaddy/commit/ae5feecd097e9d173987c56963ee4c9fd7c7cf32))
+
 ## v0.1.6 (2022-03-14)
 ### Fix
 * Fix the CHANGELOG.md format for the v0.1.4 entry ([`9ce83b1`](https://github.com/tstapler/cfgcaddy/commit/9ce83b176da9601dca9cc2d6bb0199ee5c72d055))

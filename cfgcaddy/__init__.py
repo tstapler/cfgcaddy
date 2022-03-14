@@ -2,7 +2,7 @@ import os
 from enum import Enum
 from logging import getLogger
 
-__version__ = "0.1.6"
+__version__ = "0.1.7"
 
 logging = getLogger()
 logging.propagate = True
