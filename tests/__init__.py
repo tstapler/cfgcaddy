@@ -15,18 +15,21 @@ def set_in_dict(data_dict, map_list, value):
 
 
 def list_files(start_path):
-    for root, dirs, files in os.walk(start_path):
+    for root, dirs, files in os.walk(start_path, followlinks=True):
         level = root.replace(start_path, "").count(os.sep)
         indent = " " * 4 * level
         print("{}{}/".format(indent, os.path.basename(root)))
         sub_indent = " " * 4 * (level + 1)
         for f in files:
-            print("{}{}".format(sub_indent, f))
+            file_name = f
+            if os.path.islink(os.path.join(root, f)):
+                f += "*"
+            print("{}{}".format(sub_indent, file_name))
 
 
 def dir_dict(start_path):
     structure = {}
-    for root, dirs, files in os.walk(start_path):
+    for root, dirs, files in os.walk(start_path, followlinks=True):
         current_level = os.path.relpath(root, start_path).split(os.sep)
         depth = len(current_level)
         if depth >= 1 and current_level[0] != ".":

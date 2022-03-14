@@ -104,9 +104,9 @@ def link_folder(src, dest, force=False):
         # Only the source exists
         elif not path.exists(dest) and not path.islink(dest) and path.exists(src):
             try:
-                os.makedirs(path.dirname(dest))
-            except Exception:
-                logger.error("Failed to make dir {}".format(dest))
+                os.makedirs(path.dirname(dest), exist_ok=True)
+            except Exception as e:
+                logger.error("Failed to make dir {} - {}".format(dest, e))
                 return
             os.symlink(src, dest)
             logger.info("Symlinked {} to {}".format(src, dest))
@@ -119,8 +119,6 @@ def link_folder(src, dest, force=False):
             ):
                 shutil.move(dest, src)
                 logger.info("Moving {} to {}".format(dest, src))
-                shutil.rmtree(dest)
-                logger.info("Removed {}".format(dest))
                 os.symlink(src, dest)
                 logger.info("Symlinked {} to {}".format(src, dest))
                 return True
@@ -128,8 +126,8 @@ def link_folder(src, dest, force=False):
         # Nothing to do
         return False
 
-    except OSError:
-        logger.error("Failed to link {} to {}".format(src, dest))
+    except OSError as e:
+        logger.error("Failed to link {} to {} - {}".format(src, dest, e))
         return True
 
 
