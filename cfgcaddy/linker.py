@@ -2,7 +2,9 @@ import logging
 from typing import Collection
 
 import cfgcaddy.utils as utils
-from cfgcaddy.link import find_absences, Link
+from cfgcaddy.link import create_links, find_absences
+from cfgcaddy.link_spec import LinkSpec, LinkingResult
+from cfgcaddy.utils import create_dirs
 
 logger = logging.getLogger()
 
@@ -10,9 +12,9 @@ logger = logging.getLogger()
 class Linker:
     """Tyler Stapler's Config Linker"""
 
-    custom_links: Collection[Link]
+    custom_links: Collection[LinkSpec]
 
-    def __init__(self, linker_config, interactive=True):
+    def __init__(self, linker_config, interactive=True) -> None:
 
         if not linker_config:
             raise Exception("Linker requires Config!")
@@ -23,7 +25,7 @@ class Linker:
         self.custom_links = self.config.links
         self.ignored_patterns = self.config.ignore_patterns
 
-    def create_links(self):
+    def create_links(self) -> None:
         """Symlinks configuration files to the destination directory
 
         Parses the ignore file for regexes and then generates a list of files
@@ -41,16 +43,16 @@ class Linker:
         logger.info("Preparing to symlink the following files")
         logger.info("\n".join(str(link.dest) for link in absent_files))
         if not self.interactive or utils.user_confirm("Are these the correct files?"):
-            utils.create_dirs(dirs=absent_dirs)
-            utils.create_links(links=absent_files)
+            create_dirs(dirs=absent_dirs)
+            create_links(links=absent_files)
 
-    def create_custom_links(self):
+    def create_custom_links(self) -> None:
         """Link all the files in the customlink file
 
         Returns:
             None
         """
-        modified = False
+        modified = LinkingResult.SKIPPED
 
         for link in self.custom_links:
             modified = link.create(interactive=self.interactive)

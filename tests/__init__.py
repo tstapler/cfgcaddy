@@ -11,6 +11,7 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 
 logger = logging.getLogger()
 
+
 def get_from_dict(data_dict, map_list):
     return reduce(operator.getitem, map_list, data_dict)
 

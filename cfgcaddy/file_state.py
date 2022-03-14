@@ -9,14 +9,14 @@ logger = logging.getLogger()
 
 
 class FileState(str, Enum):
-    MISSING = 'MISSING'
-    LINK = 'LINK'
-    BROKEN_LINK = 'BROKEN_LINK'
-    LINK_FILE = 'LINK_FILE'
-    LINK_DIRECTORY = 'LINK_DIRECTORY'
-    DIRECTORY = 'DIRECTORY'
-    FILE = 'FILE'
-    UNKNOWN = 'UNKNOWN'
+    MISSING = "MISSING"
+    LINK = "LINK"
+    BROKEN_LINK = "BROKEN_LINK"
+    LINK_FILE = "LINK_FILE"
+    LINK_DIRECTORY = "LINK_DIRECTORY"
+    DIRECTORY = "DIRECTORY"
+    FILE = "FILE"
+    UNKNOWN = "UNKNOWN"
 
     @classmethod
     def from_pathlike(cls, f: Union[str, Path]):

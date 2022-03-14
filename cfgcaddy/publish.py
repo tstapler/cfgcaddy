@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from poetry_publish.publish import poetry_publish
+from poetry_publish.publish import poetry_publish  # type: ignore
 
 import cfgcaddy
 

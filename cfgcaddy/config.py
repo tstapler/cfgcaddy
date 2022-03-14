@@ -4,6 +4,8 @@ import os
 import platform
 import sys
 from os import path
+from pathlib import Path
+from typing import List, Dict
 
 from ruamel.yaml import YAML
 
@@ -20,10 +22,10 @@ MISSING_FILE_MESSAGE = (
 
 
 class LinkerConfig:
-    config = None
-    links = []
+    config: Dict = {}
+    links: List[Link] = []
 
-    def __init__(self, config_file_path=None, default_config=None):
+    def __init__(self, config_file_path=None, default_config=None) -> None:
         self.config_file_path = config_file_path
 
         if default_config:
@@ -43,20 +45,27 @@ class LinkerConfig:
         self.generate_links(self.links_yaml)
 
     @property
-    def preferences(self):
-        return self.config.get("preferences") or {}
+    def preferences(self) -> Dict[str, str]:
+        if not self.config:
+            raise
+        return self.config.get("preferences", {})
 
     @property
-    def linker_src(self):
-        src = "linker_src"
-        return utils.expand_path(self.preferences.get(src))
+    def linker_src(self) -> Path:
+        src = self.preferences.get("linker_src")
+
+        if not src:
+            raise ValueError("linker_src is not set in the config")
+        return utils.expand_path(src)
 
     @property
-    def linker_dest(self):
-        dest = "linker_dest"
-        return utils.expand_path(self.preferences.get(dest))
+    def linker_dest(self) -> Path:
+        dest = self.preferences.get("linker_dest")
+        if not dest:
+            raise ValueError("linker_dest is not set in the config")
+        return utils.expand_path(dest)
 
-    def write_config(self, prompt=True):
+    def write_config(self, prompt=True) -> None:
         if not os.path.exists(self.config_file_path) or (
             not prompt
             or utils.user_confirm(
@@ -72,7 +81,7 @@ class LinkerConfig:
             except Exception as e:
                 logger.error("Error writing config: {}".format(e))
 
-    def read_config(self):
+    def read_config(self) -> None:
         if os.path.isfile(self.config_file_path):
             with open(self.config_file_path, "r") as file:
                 self.config = yaml.load(file)

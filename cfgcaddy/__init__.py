@@ -7,6 +7,7 @@ __version__ = "0.1.5"
 logging = getLogger()
 logging.propagate = True
 
+
 class LinkMode(Enum):
     SKIP = "SKIP"
     OVERRIDE = "OVERRIDE"

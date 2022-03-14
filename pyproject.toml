@@ -18,6 +18,7 @@ pytest = "^7.0.0"
 poetry-publish = "^0.4.0"
 black = "^22.1.0"
 python-semantic-release = "^7.26.0"
+mypy = "^0.940"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

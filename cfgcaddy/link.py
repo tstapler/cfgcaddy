@@ -1,63 +1,59 @@
+from __future__ import annotations
+
 import logging
 import os
 import shutil
-from enum import Flag
 from os import path
 from pathlib import Path
-from typing import NoReturn, Union
+from typing import NoReturn, Union, Optional, List, Tuple, Sequence
 
-import pathspec
+import pathspec  # type: ignore
 
 import cfgcaddy
 from cfgcaddy.file_state import FileState
-from cfgcaddy.utils import user_confirm, create_dirs, move_files, convert_to_path
+from cfgcaddy.link_spec import LinkSpec, LinkingResult
+from cfgcaddy.utils import (
+    user_confirm,
+    make_parent_dirs,
+    create_dirs,
+    convert_to_path,
+    Pathlike,
+)
 
 logger = logging.getLogger()
 
 
 # MyPy based exhaustiveness check
 def assert_never(value: NoReturn) -> NoReturn:
-    assert False, f'Unhandled value: {value} ({type(value).__name__})'
+    assert False, f"Unhandled value: {value} ({type(value).__name__})"
 
 
-class LinkingResult(Flag):
-    """The result from a linking operation"""
-    SKIPPED = False
-    CREATED = True
-    FAILED = False
-
-
-def create_symlink(location: Path, target: Path):
+def create_symlink(location: Path, target: Path) -> None:
     location.parent.mkdir(exist_ok=True, parents=True)
     location.symlink_to(target, target_is_directory=target.is_dir())
 
 
-class Link:
+class Link(LinkSpec):
     src: Path
     dest: Path
 
     def __init__(self, src: Union[str, Path], dest: Union[str, Path]):
-        """docstring for __init__"""
-
         self.src = convert_to_path(src)
         self.dest = convert_to_path(dest)
 
-    def __repr__(self):
-        return "{} => {}".format(self.src, self.dest)
-
-    @property
-    def is_linked(self):
-        return os.path.islink(self.dest)
-
-    def create(self, interactive=False) -> LinkingResult:
+    def create(self, interactive: bool = False) -> LinkingResult:
         dest_state = FileState.from_pathlike(self.dest)
         src_state = FileState.from_pathlike(self.src)
         if dest_state is FileState.UNKNOWN:
-            logger.debug(f"Link destination {self.dest} is an unrecognized filetype, skipping")
+            logger.debug(
+                f"Link destination {self.dest} is an unrecognized filetype, skipping"
+            )
             return LinkingResult.SKIPPED
 
         if src_state is FileState.UNKNOWN:
-            logger.debug(f"Link target {self.src} is an unrecognized filetype, skipping")
+            logger.debug(
+                f"Link target {self.src} is an unrecognized filetype, skipping"
+            )
             return LinkingResult.SKIPPED
 
         if dest_state in [FileState.LINK_FILE, FileState.LINK_DIRECTORY]:
@@ -65,9 +61,16 @@ class Link:
                 logger.debug(f"Skipping {self.dest}, already linked")
                 return LinkingResult.SKIPPED
             else:
-                logger.info(f"{self.dest} is a symlink, please remove it if you want to link {self.src}")
+                logger.info(
+                    f"{self.dest} is a symlink, please remove it if you want to link {self.src}"
+                )
         if dest_state is FileState.BROKEN_LINK:
-            if src_state in [FileState.FILE, FileState.DIRECTORY, FileState.LINK_FILE, FileState.LINK_DIRECTORY]:
+            if src_state in [
+                FileState.FILE,
+                FileState.DIRECTORY,
+                FileState.LINK_FILE,
+                FileState.LINK_DIRECTORY,
+            ]:
                 self.dest.unlink()
                 create_symlink(self.dest, self.src)
             elif src_state in [FileState.MISSING, FileState.BROKEN_LINK]:
@@ -76,7 +79,9 @@ class Link:
                 assert_never(src_state)
         elif dest_state is FileState.FILE:
             if src_state in [FileState.FILE, FileState.DIRECTORY, FileState.LINK]:
-                logger.info(f"{self.dest} is a file, move/rename it if you want a link to {self.src}.")
+                logger.info(
+                    f"{self.dest} is a file, move/rename it if you want a link to {self.src}."
+                )
                 return LinkingResult.SKIPPED
             elif src_state is FileState.MISSING:
                 logger.info(f"Copying {self.dest} to {self.src} and symlinking")
@@ -94,12 +99,18 @@ class Link:
         elif dest_state is FileState.DIRECTORY:
             logger.debug(f"Link destination {self.dest} does not exist")
             if src_state in [FileState.FILE, FileState.LINK_FILE]:
-                logger.info(f"{self.dest} is a file and the link src {self.src} is a file, skipping")
+                logger.info(
+                    f"{self.dest} is a file and the link src {self.src} is a file, skipping"
+                )
                 return LinkingResult.SKIPPED
             elif src_state is FileState.BROKEN_LINK:
                 self.src.unlink()
                 return link_folder(self.src, self.dest, interactive=interactive)
-            elif src_state in [FileState.DIRECTORY, FileState.LINK_DIRECTORY, FileState.MISSING]:
+            elif src_state in [
+                FileState.DIRECTORY,
+                FileState.LINK_DIRECTORY,
+                FileState.MISSING,
+            ]:
                 return link_folder(self.src, self.dest, interactive=interactive)
             else:
                 assert_never(src_state)
@@ -113,14 +124,16 @@ class Link:
                 logger.debug(f"Link target {self.src} is a directory, linking")
                 return link_folder(self.src, self.dest, interactive=interactive)
             elif src_state in [FileState.MISSING, FileState.BROKEN_LINK]:
-                logger.error(f"Trying to link {self.dest} to {self.src} both files do not exist")
+                logger.error(
+                    f"Trying to link {self.dest} to {self.src} both files do not exist"
+                )
                 return LinkingResult.SKIPPED
             else:
                 assert_never(src_state)
         assert_never(dest_state)
 
 
-def link_folder(src: Path, dest: Path, interactive=False) -> LinkingResult:
+def link_folder(src: Path, dest: Path, interactive: bool = False) -> LinkingResult:
     """Link the folder src to the destination dest
 
     Args:
@@ -135,7 +148,9 @@ def link_folder(src: Path, dest: Path, interactive=False) -> LinkingResult:
     try:
         # Both Folders Exist
         if path.exists(dest) and path.exists(src) and not path.islink(dest):
-            if not interactive or user_confirm("Link and merge {} to {}".format(src, dest)):
+            if not interactive or user_confirm(
+                "Link and merge {} to {}".format(src, dest)
+            ):
                 absent_files, absent_dirs = find_absences(dest, src)
                 zip_file = shutil.make_archive(
                     path.join(src, "{}_backup".format(folder_name)),
@@ -145,7 +160,7 @@ def link_folder(src: Path, dest: Path, interactive=False) -> LinkingResult:
                 logger.info("Backing up {} to {}".format(folder_name, zip_file))
                 create_dirs(absent_dirs)
                 logger.info("Created {}".format(absent_dirs))
-                move_files(absent_files)
+                move_files(links=absent_files)
                 logger.info("Moving files {}".format(absent_files))
                 shutil.rmtree(dest)
                 logger.info("Removed {}".format(dest))
@@ -167,7 +182,7 @@ def link_folder(src: Path, dest: Path, interactive=False) -> LinkingResult:
         # Only the destination exists
         elif path.exists(dest) and not path.exists(src):
             if not interactive or user_confirm(
-                    "Delete, Move to {} and" " Link back to {}?".format(src, dest)
+                "Delete, Move to {} and" " Link back to {}?".format(src, dest)
             ):
                 shutil.move(dest, src)
                 logger.info("Moving {} to {}".format(dest, src))
@@ -184,7 +199,49 @@ def link_folder(src: Path, dest: Path, interactive=False) -> LinkingResult:
         return LinkingResult.FAILED
 
 
-def find_absences(src, dest, ignored_patterns=None):
+def create_links(links: Optional[Sequence[LinkSpec]] = None) -> None:
+    """Create symlinks for each item in links
+
+    Args:
+        links([Link]): a list of paths to link
+    Returns:
+        None: Does not return anything
+    """
+    if links:
+        for link in links:
+            try:
+                make_parent_dirs(link.dest)
+                os.symlink(link.src, link.dest)
+            except OSError as err:
+                # If the file exists and isn't a link
+                if err.errno == 17 and not os.path.islink(link.dest):
+                    logger.error(
+                        "Can't make link from {} to {} because {}".format(
+                            link.src, link.dest, err.strerror
+                        )
+                    )
+
+
+def move_files(links: Sequence[LinkSpec]) -> None:
+    """Move the files in the list from src to dest
+
+    Args:
+        links([Link])
+
+    Returns:
+        None: Does not return anything
+    """
+    if links:
+        for link in links:
+            try:
+                shutil.move(link.src, link.dest)
+            except OSError:
+                logger.error("Can't move from {} to {}".format(link.src, link.dest))
+
+
+def find_absences(
+    src: Pathlike, dest: Pathlike, ignored_patterns: Optional[List[str]] = None
+) -> Tuple[List[Link], List[str]]:
     """Walk the source directory and return a lists of files and dirs absent
         from the destination directory
 

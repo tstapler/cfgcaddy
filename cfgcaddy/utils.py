@@ -1,16 +1,18 @@
+from __future__ import annotations
 import logging
 import os
-import shutil
 from os import path
 from pathlib import Path
-from typing import Union
+from typing import Union, Optional, List
 
 from questionary import prompt
 
 logger = logging.getLogger()
 
+Pathlike = Union[str, Path]
 
-def user_confirm(question, default=True):
+
+def user_confirm(question: str, default: bool = True) -> bool:
     """Ask the user to confirm a choice
 
     Args:
@@ -23,10 +25,21 @@ def user_confirm(question, default=True):
     """
     return prompt(
         [{"type": "confirm", "name": "ok", "message": question, "default": default}]
-    ).get("ok")
+    ).get("ok", False)
 
 
-def create_dirs(dirs=None):
+def make_parent_dirs(file_path: Pathlike) -> None:
+    try:
+        os.makedirs(path.dirname(file_path))
+    except OSError:  # Python >2.5
+        pass
+
+
+def expand_path(file_path: Pathlike) -> Path:
+    return Path(os.path.expandvars(os.path.expanduser(file_path)))
+
+
+def create_dirs(dirs: Optional[List[str]] = None) -> None:
     """Creates all folders in dirs
 
     Args:
@@ -41,59 +54,6 @@ def create_dirs(dirs=None):
                 os.makedirs(dir_name)
             except OSError:
                 logger.error("Unable to create directory: {}", dir_name)
-
-
-def make_parent_dirs(file_path):
-    try:
-        os.makedirs(path.dirname(file_path))
-    except OSError:  # Python >2.5
-        pass
-
-
-def create_links(links=None):
-    """Create symlinks for each item in links
-
-    Args:
-        links([Link]): a list of paths to link
-    Returns:
-        None: Does not return anything
-    """
-    if links:
-        for link in links:
-            try:
-                make_parent_dirs(link.dest)
-                os.symlink(link.src, link.dest)
-            except OSError as err:
-                # If the file exists and isn't a link
-                if err.errno == 17 and not os.path.islink(link.dest):
-                    logger.error(
-                        "Can't make link from {} to {} because {}".format(
-                            link.src, link.dest, err.strerror
-                        )
-                    )
-
-
-def move_files(transactions=None):
-    """Move the files in the list from src to dest
-
-    Args:
-        transactions([Link])
-
-    Returns:
-        None: Does not return anything
-    """
-    if transactions:
-        for transaction in transactions:
-            try:
-                shutil.move(transaction.src, transaction.dest)
-            except OSError:
-                logger.error(
-                    "Can't move from {} to {}".format(transaction.src, transaction.dest)
-                )
-
-
-def expand_path(file_path):
-    return os.path.expandvars(os.path.expanduser(file_path))
 
 
 def convert_to_path(f: Union[str, Path]) -> Path:
