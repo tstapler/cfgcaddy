@@ -1,6 +1,7 @@
 from filecmp import dircmp
+from pathlib import Path
 
-from cfgcaddy.linker import link_folder
+from cfgcaddy.link import link_folder
 from tests import FileLinkTestCase, create_files_from_tree, list_files
 
 
@@ -16,7 +17,7 @@ class TestLinkFolder(FileLinkTestCase):
         list_files(self.source_dir)
         list_files(self.dest_dir)
 
-        link_folder(src, dest, force=True)
+        link_folder(Path(src), Path(dest), interactive=False)
 
         print("\nAfter:")
         list_files(self.source_dir)

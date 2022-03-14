@@ -10,7 +10,7 @@ from ruamel.yaml import YAML
 from cfgcaddy import utils
 from cfgcaddy.link import Link
 
-logger = logging.getLogger("cfgcaddy.config")
+logger = logging.getLogger()
 yaml = YAML(typ="safe")  # default, if not specified, is 'rt' (round-trip)
 
 

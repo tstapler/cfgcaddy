@@ -13,7 +13,7 @@ import cfgcaddy.config
 import cfgcaddy.utils
 import cfgcaddy.linker
 
-logger = logging.getLogger("cfgcaddy")
+logger = logging.getLogger()
 logger.addHandler(logging.StreamHandler())
 logger.setLevel(logging.INFO)
 
@@ -77,7 +77,7 @@ def main(debug, quiet):
     default=cfgcaddy.DEFAULT_CONFIG_PATH,
     help="The path to your cfgcaddy.yml",
 )
-@click.option("-y", "--no-prompt", is_flag=True)
+@click.option("-y", "--no-interactive", is_flag=True)
 def link(config, no_prompt):
     """Link your config files"""
     if not os.path.isfile(config):
@@ -88,7 +88,7 @@ def link(config, no_prompt):
     else:
         linker_config = cfgcaddy.config.LinkerConfig(config_file_path=config)
 
-    caddy = cfgcaddy.linker.Linker(linker_config, prompt=not no_prompt)
+    caddy = cfgcaddy.linker.Linker(linker_config, interactive=not no_prompt)
     caddy.create_links()
     caddy.create_custom_links()
 

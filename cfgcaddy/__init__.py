@@ -1,8 +1,11 @@
 import os
 from enum import Enum
+from logging import getLogger
 
 __version__ = "0.1.5"
 
+logging = getLogger()
+logging.propagate = True
 
 class LinkMode(Enum):
     SKIP = "SKIP"

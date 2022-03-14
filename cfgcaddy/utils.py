@@ -2,11 +2,12 @@ import logging
 import os
 import shutil
 from os import path
+from pathlib import Path
+from typing import Union
 
 from questionary import prompt
 
-
-logger = logging.getLogger("cfgcaddy.utils")
+logger = logging.getLogger()
 
 
 def user_confirm(question, default=True):
@@ -93,3 +94,9 @@ def move_files(transactions=None):
 
 def expand_path(file_path):
     return os.path.expandvars(os.path.expanduser(file_path))
+
+
+def convert_to_path(f: Union[str, Path]) -> Path:
+    if isinstance(f, str):
+        f = Path(f)
+    return f

@@ -8,7 +8,7 @@ from cfgcaddy.config import LinkerConfig
 from cfgcaddy.linker import Linker
 from tests import FileLinkTestCase, create_files_from_tree
 
-logger = logging.getLogger("cfgcaddy.test.linker")
+logger = logging.getLogger()
 yaml = YAML(typ="safe")  # default, if not specfied, is 'rt' (round-trip)
 
 
@@ -34,7 +34,7 @@ class TestCustomLinker(FileLinkTestCase):
 
         cfg = LinkerConfig(config_file_path=self.config_file_path)
 
-        return Linker(cfg, prompt=False)
+        return Linker(cfg, interactive=False)
 
     def check_custom_linker(self, lines, config=None):
 
