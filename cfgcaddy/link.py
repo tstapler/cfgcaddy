@@ -29,7 +29,7 @@ def assert_never(value: NoReturn) -> NoReturn:
 
 
 def create_symlink(location: Path, target: Path) -> None:
-    location.parent.mkdir(exist_ok=True, parents=True)
+    make_parent_dirs(location)
     location.symlink_to(target, target_is_directory=target.is_dir())
 
 

@@ -78,7 +78,7 @@ def main(debug, quiet):
     help="The path to your cfgcaddy.yml",
 )
 @click.option("-y", "--no-interactive", is_flag=True)
-def link(config, no_prompt):
+def link(config, no_interactive):
     """Link your config files"""
     if not os.path.isfile(config):
         logger.error(
@@ -88,7 +88,7 @@ def link(config, no_prompt):
     else:
         linker_config = cfgcaddy.config.LinkerConfig(config_file_path=config)
 
-    caddy = cfgcaddy.linker.Linker(linker_config, interactive=not no_prompt)
+    caddy = cfgcaddy.linker.Linker(linker_config, interactive=no_interactive)
     caddy.create_links()
     caddy.create_custom_links()
 

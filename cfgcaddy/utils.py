@@ -31,7 +31,7 @@ def user_confirm(question: str, default: bool = True) -> bool:
 def make_parent_dirs(file_path: Pathlike) -> None:
     try:
         os.makedirs(path.dirname(file_path))
-    except OSError:  # Python >2.5
+    except OSError as e:  # Python >2.5
         pass
 
 
