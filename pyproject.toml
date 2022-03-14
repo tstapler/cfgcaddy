@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "cfgcaddy"
-version = "0.1.5"
+version = "0.1.6"
 description = "A cli for managing user's config files"
 readme = "README.md"
 authors = ["Tyler Stapler <tystapler@gmail.com>"]
