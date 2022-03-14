@@ -1,7 +1,7 @@
 import os
 from enum import Enum
 
-__version__ = "0.1.4"
+__version__ = "0.1.5"
 
 
 class LinkMode(Enum):

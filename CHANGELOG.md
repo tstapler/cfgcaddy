@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!--next-version-placeholder-->
 
+## v0.1.5 (2022-03-14)
+### Fix
+* Correct folder linking behavior ([`e800ebe`](https://github.com/tstapler/cfgcaddy/commit/e800ebebe4d5a72cc162325ec3cb85063a98172b))
+
 ## v0.1.4 - 2022/03/13
 
 ### Fix
