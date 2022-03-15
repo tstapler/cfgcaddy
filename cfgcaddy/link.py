@@ -269,13 +269,12 @@ def find_absences(
         if rel_path == ".":
             rel_path = ""
 
-        # Remove ignored directories from the walk
         dirs[:] = [
             dir_name
             for dir_name in dirs
-            if not ignored.match_file(path.join(root, dir_name))
+            if not ignored.match_file(path.join(rel_path, dir_name))
         ]
-        files[:] = [f for f in files if not ignored.match_file(path.join(root, f))]
+        files[:] = [f for f in files if not ignored.match_file(path.join(rel_path, f))]
 
         # Create list of dirs that don't exist
         for dir_name in dirs:
@@ -293,5 +292,4 @@ def find_absences(
                     os.unlink(pathname)  # Fix Broken Links
                 # Add the source and destination for the symlink
                 absent_files.append(Link(path.join(root, f), pathname))
-
     return absent_files, absent_dirs
