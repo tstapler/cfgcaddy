@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 <!--next-version-placeholder-->
 
+## v0.1.8 (2022-03-15)
+### Fix
+* Correctly check for broken links in find_absences ([`dfd9eec`](https://github.com/tstapler/cfgcaddy/commit/dfd9eec9033d03ff4cab067c63a5428869213f56))
+* Remove somewhat misleading os debug log ([`648f0e3`](https://github.com/tstapler/cfgcaddy/commit/648f0e31ea3a994ab188c65244f6866e6a27fc74))
+* Fix find_absence after converting the application to using pathlib ([`9f1326b`](https://github.com/tstapler/cfgcaddy/commit/9f1326b2afd621ee3afb4df22870115ff43821ae))
+
 ## v0.1.7 (2022-03-14)
 ### Fix
 * Correct prompt name ([`ae5feec`](https://github.com/tstapler/cfgcaddy/commit/ae5feecd097e9d173987c56963ee4c9fd7c7cf32))
