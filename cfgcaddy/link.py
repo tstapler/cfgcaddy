@@ -280,7 +280,7 @@ def find_absences(
         for dir_name in dirs:
             pathname = path.join(dest, rel_path, dir_name)
             if not path.exists(pathname):
-                if path.islink(pathname):
+                if path.islink(pathname) and not path.exists(pathname):
                     os.unlink(pathname)  # Fix Broken Links
                 absent_dirs.append(pathname)
 
@@ -288,7 +288,7 @@ def find_absences(
         for f in files:
             pathname = path.join(dest, rel_path, f)
             if not path.exists(pathname):
-                if path.islink(pathname):
+                if path.islink(pathname) and not path.exists(pathname):
                     os.unlink(pathname)  # Fix Broken Links
                 # Add the source and destination for the symlink
                 absent_files.append(Link(path.join(root, f), pathname))
