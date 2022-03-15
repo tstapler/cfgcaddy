@@ -92,7 +92,6 @@ class LinkerConfig:
         for link in links:
             try:
                 if link.get("os") and platform.system() not in link.get("os"):
-                    logger.debug("OS: {}".format(link.get("os")))
                     continue
 
                 link_src = utils.expand_path(link["src"])
