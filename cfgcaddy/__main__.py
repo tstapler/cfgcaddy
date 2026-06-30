@@ -145,7 +145,7 @@ def link(config, no_interactive):
         mode = "copy" if linker_config.use_copy_mode else "symlink"
         logger.info(f"Running on Termux using {mode} mode")
 
-    caddy = cfgcaddy.linker.Linker(linker_config, interactive=no_interactive)
+    caddy = cfgcaddy.linker.Linker(linker_config, interactive=not no_interactive)
     caddy.create_links()
     caddy.create_custom_links()
 
