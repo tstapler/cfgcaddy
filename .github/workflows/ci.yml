@@ -2,43 +2,40 @@ name: CI
 on: pull_request
 
 jobs:
-  black-formatting-check:
-    name: Check formatting
+  lint-and-format:
+    name: Check formatting and lint
     runs-on: 'ubuntu-latest'
     steps:
-      - uses: actions/checkout@v2.3.4
-      - uses: actions/setup-python@v2.2.2
-      - uses: psf/black@stable
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+      - name: Install deps
+        run: uv sync --extra dev
+      - name: Check formatting (ruff format)
+        run: uv run ruff format --check .
+      - name: Lint (ruff check)
+        run: uv run ruff check .
   ci:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.7', '3.8', '3.9', '3.10']
-        os: [ubuntu-18.04, macos-latest, windows-latest]
+        # 3.7 dropped: uv/python-build-standalone no longer ships 3.7
+        # interpreters, and pyproject.toml's requires-python floor is
+        # informational only at this point since the runtime is EOL.
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+        os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
-    needs: black-formatting-check
+    needs: lint-and-format
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v3
         with:
+          enable-cache: true
           python-version: ${{ matrix.python-version }}
-      - name: Run image
-        uses: abatilo/actions-poetry@v2.0.0
-        with:
-          poetry-version: 1.1.13
-      - name: Cache dependencies
-        id: cache-deps
-        uses: actions/cache@v2.1.6
-        with:
-          path: ${{github.workspace}}/.venv
-          key: poetry-${{ hashFiles('**/poetry.lock') }}
-          restore-keys: poetry-
       - name: Install deps
-        if: steps.cache-deps.cache-hit != 'true'
-        run: |
-          poetry config virtualenvs.in-project true
-          poetry install --no-interaction
+        run: uv sync --extra dev
       - name: Run tests
-        run: poetry run pytest -v
+        run: uv run pytest -v
       - name: Run Build
-        run: poetry build
+        run: uv build

@@ -89,6 +89,7 @@ class Link(LinkSpec):
                 logger.info(
                     f"{self.dest} is a symlink, please remove it if you want to link {self.src}"
                 )
+                return LinkingResult.SKIPPED
         if dest_state is FileState.BROKEN_LINK:
             if src_state in [
                 FileState.FILE,

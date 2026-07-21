@@ -14,12 +14,20 @@ def create_directory_of_fixtures(prefix: Path, fixtures: List[str]):
 
     Slashes at the end of a string indicate a directory
     Slashes in the middle of a string will be interpreted as a directory/file relationship
+    "name->target" creates a symlink named "name" pointing at "target" (both
+    relative to prefix). The target should already exist earlier in the list.
     """
     for f in fixtures:
-        p = Path(prefix, f)
-        if f.endswith("/"):
+        if "->" in f:
+            link_name, _, target = f.partition("->")
+            p = Path(prefix, link_name)
+            p.parent.mkdir(parents=True, exist_ok=True)
+            p.symlink_to(Path(prefix, target))
+        elif f.endswith("/"):
+            p = Path(prefix, f)
             p.mkdir(parents=True, exist_ok=True)
         else:
+            p = Path(prefix, f)
             p.parent.mkdir(parents=True, exist_ok=True)
             p.touch()
 
@@ -126,6 +134,16 @@ class LinkTestCase:
             link_dest="file1",
             expected_src_tree=["file1"],
             expected_dest_tree=["file1"],
+            link_result=LinkingResult.SKIPPED,
+        ).to_pytest_param(),
+        LinkTestCase(
+            description="dest is already a symlink to something else",
+            src_tree=["file1"],
+            dest_tree=["other_target", "link_name->other_target"],
+            link_src="file1",
+            link_dest="link_name",
+            expected_src_tree=["file1"],
+            expected_dest_tree=["other_target", "link_name->other_target"],
             link_result=LinkingResult.SKIPPED,
         ).to_pytest_param(),
         LinkTestCase(
